@@ -45,7 +45,7 @@
     <ClCompile Include="src\app\systems\EventDispatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\window\Camera.cpp">
+    <ClCompile Include="src\core\window\Camera2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\utils\FrameLimiter.cpp">
@@ -79,6 +79,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\rendering\Renderer3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1853,7 +1856,7 @@
     <ClInclude Include="src\app\systems\LayerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\window\Camera.h">
+    <ClInclude Include="src\core\window\Camera2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\utils\FrameLimiter.h">
@@ -1893,6 +1896,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\window\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\rendering\Renderer3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

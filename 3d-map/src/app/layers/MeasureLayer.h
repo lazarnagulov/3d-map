@@ -12,6 +12,7 @@ public:
 	void OnMouseButton(int button, int action, double x, double y) override;
 	void OnKey(int key, int action) override;
 	void OnRender(Renderer2D& renderer) override;
+	void OnRender(Renderer3D& renderer) override;
 	inline void SetTextPosition(const glm::vec2& postion) { m_TextPosition = postion; }
 
 private:

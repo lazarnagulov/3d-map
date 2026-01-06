@@ -14,6 +14,10 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
     }
 }
 
+void MeasureLayer::OnRender(Renderer3D& renderer) {
+    throw std::logic_error("Function not yet implemented");
+}
+
 void MeasureLayer::OnRender(Renderer2D& renderer) {
     const auto& points = m_State.GetPoints();
     

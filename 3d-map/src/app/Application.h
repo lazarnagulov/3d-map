@@ -8,7 +8,7 @@
 #include "systems/LayerManager.h"
 #include "systems/EventDispatcher.h"
 
-#include "../core/window/Camera.h"
+#include "../core/window/Camera2D.h"
 #include "../core/window/Window.h"
 #include "../core/layers/LayerStack.h"
 
@@ -37,7 +37,7 @@ private:
 	EventDispatcher m_EventDispatcher;
 	Window m_Window;
 	
-	Camera m_Camera;
+	Camera2D m_Camera;
 
 	ModeLayer& m_ModeLayer;
 	WalkLayer& m_WalkLayer;

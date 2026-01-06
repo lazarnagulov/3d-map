@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../rendering/Renderer2D.h"
+#include "../rendering/Renderer3D.h"
 
 class Layer {
 public:
@@ -10,7 +11,8 @@ public:
     virtual void OnDetach() {}     
 
     virtual void OnUpdate(float deltaTime) {} 
-    virtual void OnRender(Renderer2D& renderer) {}       
+    virtual void OnRender(Renderer2D& renderer) {}     
+    virtual void OnRender(Renderer3D& renderer) {}
 
     virtual void OnKey(int key, int action) {}
     virtual void OnMouseButton(int button, int action, double x, double y) {}
