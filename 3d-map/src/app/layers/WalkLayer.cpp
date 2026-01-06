@@ -24,7 +24,7 @@ void WalkLayer::OnAttach() {
     m_Camera.SetZoom(INITIAL_ZOOM);
 }
 
-void WalkLayer::OnRender(Renderer2D& renderer) {
+void WalkLayer::OnRender(Renderer& renderer) {
     const float playerSize = 100.0f;
     renderer.DrawQuad(
         m_State.GetPosition(),

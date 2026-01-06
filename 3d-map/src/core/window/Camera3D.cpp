@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-Camera3D::Camera3D(const glm::vec3& position = { 0 , 0, 0 }, float zoom = 1.0f) {}
+Camera3D::Camera3D(const glm::vec3& position /*= { 0 , 0, 0 }*/, float zoom /*= 1.0f*/) {}
 
 void Camera3D::Move(const glm::vec3& delta) {
     m_Position += delta;

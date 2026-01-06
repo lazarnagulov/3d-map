@@ -46,7 +46,7 @@ private:
 
 	AppState m_State;
 
-	std::unique_ptr<Renderer2D> m_Renderer;
+	std::unique_ptr<Renderer> m_Renderer;
 	std::shared_ptr<Shader> m_QuadShader;
 	std::shared_ptr<Shader> m_TextShader;
 

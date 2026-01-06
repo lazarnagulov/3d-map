@@ -14,11 +14,7 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
     }
 }
 
-void MeasureLayer::OnRender(Renderer3D& renderer) {
-    throw std::logic_error("Function not yet implemented");
-}
-
-void MeasureLayer::OnRender(Renderer2D& renderer) {
+void MeasureLayer::OnRender(Renderer& renderer) {
     const auto& points = m_State.GetPoints();
     
     for (size_t i = 0; i < points.size(); i++) {
@@ -39,7 +35,7 @@ void MeasureLayer::OnRender(Renderer2D& renderer) {
     );
 }
 
-void MeasureLayer::DrawLine(Renderer2D& renderer, const glm::vec2& p0, const glm::vec2& p1) {
+void MeasureLayer::DrawLine(Renderer& renderer, const glm::vec2& p0, const glm::vec2& p1) {
     glm::vec2 dir = p1 - p0;
     float len = glm::length(dir);
 

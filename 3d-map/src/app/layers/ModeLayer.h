@@ -7,7 +7,7 @@ class ModeLayer : public Layer {
 public:
 	ModeLayer(AppState& state);
 
-	void OnRender(Renderer2D& renderer) override;
+	void OnRender(Renderer& renderer) override;
 	void OnMouseButton(int button, int action, double x, double y) override;
 private:
 	AppState& m_State;

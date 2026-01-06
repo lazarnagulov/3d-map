@@ -12,10 +12,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-class Renderer2D
+class Renderer
 {
 public:
-    Renderer2D(const std::shared_ptr<Shader>& shader);
+    Renderer(const std::shared_ptr<Shader>& shader);
 
 
     void BeginScene(const glm::mat4& viewProjection);

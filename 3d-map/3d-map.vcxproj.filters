@@ -60,7 +60,7 @@
     <ClCompile Include="src\core\layers\LayerStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\rendering\Renderer2D.cpp">
+    <ClCompile Include="src\core\rendering\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\rendering\Texture.cpp">
@@ -81,7 +81,7 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\rendering\Renderer3D.cpp">
+    <ClCompile Include="src\core\window\Camera3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1874,7 +1874,7 @@
     <ClInclude Include="src\core\layers\LayerStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\rendering\Renderer2D.h">
+    <ClInclude Include="src\core\rendering\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\rendering\Shader.h">
@@ -1898,7 +1898,7 @@
     <ClInclude Include="src\core\window\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\rendering\Renderer3D.h">
+    <ClInclude Include="src\core\window\Camera3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

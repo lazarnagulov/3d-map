@@ -86,7 +86,7 @@ void Application::InitRenderer() {
         "./src/assets/shaders/text.frag"
     );
 
-    m_Renderer = std::make_unique<Renderer2D>(m_QuadShader);
+    m_Renderer = std::make_unique<Renderer>(m_QuadShader);
     m_Renderer->SetTextShader(m_TextShader);
     m_Renderer->LoadFont("./src/assets/fonts/Vaseline Extra.ttf");
 }
