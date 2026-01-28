@@ -25,6 +25,7 @@ public:
 	inline const Window& GetWindow() const { return m_Window; }
 	inline Window& GetWindow() { return m_Window; }
 private:
+	void InitWindowHandlers();
 	void InitRenderer();
 	void SyncLayersWithState();
 	void PrepareFrame(int width, int height);
