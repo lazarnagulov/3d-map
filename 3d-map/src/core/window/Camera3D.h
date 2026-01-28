@@ -9,7 +9,7 @@ struct Ray {
 
 class Camera3D {
 public:
-    Camera3D(const glm::vec3& position = { 0 , 0, 0 }, float zoom = 1.0f, float yaw = -90.0f, float pitch = 0.0f);
+    Camera3D(const glm::vec3& position = { 0 , 0, 0 }, float fov = 60.0f, float yaw = -90.0f, float pitch = 0.0f);
 
     void Move(const glm::vec3& delta);
     void Zoom(float dfov);

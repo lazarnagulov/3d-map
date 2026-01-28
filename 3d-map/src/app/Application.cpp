@@ -16,7 +16,7 @@ Application::Application()
     m_ModeLayer(m_LayerManager.AddLayer<ModeLayer>(m_State)),
     m_CursorLayer(m_LayerManager.AddLayer<CompassCursorLayer>(m_Input, glm::vec2(0.0f, m_Window.GetHeight()))),
     m_Camera2D({ 0,0 }, 1.0f),
-    m_Camera3D({ 0, 300, 300 }, 1.0f, -90.0f, -45.0f)
+    m_Camera3D({ 0, 300, 300 }, 60.0f, -90.0f, -45.0f)
 {
     m_BackgroundTexture = std::make_shared<Texture>("./src/assets/textures/map.jpg");
     InitRenderer();
@@ -44,10 +44,11 @@ void Application::InitWindowHandlers() {
         if (key == GLFW_KEY_RIGHT) m_CameraMoveDir.x = value;
 
         return false;
-        });
+    });
 
     m_EventDispatcher.SetWindowHeight(m_Window.GetHeight());
     m_MeasureLayer.SetWindowSize({ m_Window.GetWidth(), m_Window.GetHeight() });
+
     m_WalkLayer.GetState().SetBounds(
         { -1000.0f, -1000.0f },
         { +1000.0f, +1000.0f }
@@ -56,16 +57,9 @@ void Application::InitWindowHandlers() {
     m_State.SetOnModeChanged([this](AppState::Mode mode) {
         SyncLayersWithState();
         glm::vec3 cameraPos = m_Camera3D.GetPosition();
-
-        if (mode == AppState::Mode::MEASURE) {
-            cameraPos.y = 800.0f;
-        }
-        else {
-            cameraPos.y = 300.0f;
-        }
-
+        cameraPos = mode == AppState::Mode::MEASURE ? cameraPos = { 0, 900.0f, 900.0f } : cameraPos = { 0, 300.0f, 300.0f };
         m_Camera3D.SetPosition(cameraPos);
-        });
+    });
 }
 
 void Application::Run(float targetFps) {
@@ -127,6 +121,7 @@ void Application::InitRenderer() {
 
 void Application::Update(float deltaTime) {
     m_Window.Update();
+    m_MeasureLayer.SetWindowSize({ m_Window.GetWidth(), m_Window.GetHeight() });
 
     const float moveSpeed = 300.0f;
     glm::vec3 pos = m_Camera3D.GetPosition();
@@ -135,13 +130,13 @@ void Application::Update(float deltaTime) {
     pos.z += m_CameraMoveDir.y * moveSpeed * deltaTime;
 
     pos.x = glm::clamp(pos.x, -1000.0f, 1000.0f);
-    pos.z = glm::clamp(pos.z, -1000.0f, 1000.0f);
+    pos.z = glm::clamp(pos.z, -1000.0f, 1500.0f);
 
     m_Camera3D.SetPosition(pos);
 
     m_EventDispatcher.DispatchToLayers([&](Layer& layer) {
         layer.OnUpdate(deltaTime);
-        });
+    });
 
     m_Input.EndFrame();
 }
