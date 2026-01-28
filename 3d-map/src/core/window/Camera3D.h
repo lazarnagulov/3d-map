@@ -19,7 +19,7 @@ public:
     glm::mat4 GetViewProjection(int screenWidth, int screenHeight) const;
 
     Ray ScreenToWorld(float x, float y, int screenWidth, int screenHeight) const;
-    glm::vec3 WorldToScreen(const glm::vec3& p, int screenWidth, int screenHeight) const;
+    glm::vec2 WorldToScreen(const glm::vec3& p, int screenWidth, int screenHeight) const;
 
     inline float GetZoom() const { return m_Zoom; }
     inline glm::vec3 GetPosition() { return m_Position; }
