@@ -30,7 +30,7 @@ void Window::CreateFullscreenWindow() {
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     m_Width = mode->width;
     m_Height = mode->height;
-    m_Window = glfwCreateWindow(m_Width, m_Height, "2D map", monitor, nullptr);
+    m_Window = glfwCreateWindow(m_Width, m_Height, "3D map", nullptr, nullptr);
 
     if (!m_Window) {
         std::cerr << "Window creation failed\n";
@@ -39,6 +39,8 @@ void Window::CreateFullscreenWindow() {
     }
 
     glfwMakeContextCurrent(m_Window);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

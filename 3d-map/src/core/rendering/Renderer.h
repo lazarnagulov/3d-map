@@ -9,14 +9,21 @@
 #include "buffers/IndexBuffer.h"
 #include "buffers/VertexBufferLayout.h"
 #include "Texture.h"
+#include "Mesh.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-class Renderer2D
+class Renderer
 {
 public:
-    Renderer2D(const std::shared_ptr<Shader>& shader);
+    enum class DepthMode {
+        Enabled,
+        Disabled
+    };
 
+    Renderer(const std::shared_ptr<Shader>& shader);
+
+    void SetDepthMode(DepthMode mode);
 
     void BeginScene(const glm::mat4& viewProjection);
     void EndScene();
@@ -33,9 +40,10 @@ public:
 
     void DrawText(const std::string& txt, glm::vec2 pos, float scale, const glm::vec4& color = glm::vec4(1.0f));
     void LoadFont(const std::string& fontPath, unsigned int fontSize = 48);
-
+    
+    void DrawMesh(const Mesh& mesh, const glm::mat4& transform);
     inline void SetTextShader(std::shared_ptr<Shader>& shader) { m_TextShader = shader; }
-
+    inline void SetMeshShader(std::shared_ptr<Shader>& shader) { m_MeshShader = shader; }
 private:
     void InitQuad();
     void InitLine();
@@ -53,6 +61,7 @@ private:
     std::shared_ptr<Shader> m_ColorShader;
     std::shared_ptr<Shader> m_CircleShader;
     std::shared_ptr<Shader> m_TextShader;
+    std::shared_ptr<Shader> m_MeshShader;
 
     std::unique_ptr<VertexArray> m_QuadVA;
     std::unique_ptr<VertexBuffer> m_QuadVB;

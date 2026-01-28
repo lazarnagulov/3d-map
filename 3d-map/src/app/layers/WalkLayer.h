@@ -3,15 +3,15 @@
 #include "../../core/layers/Layer.h"
 #include "../../core/input/Input.h"
 #include "../../core/rendering/Texture.h"
-#include "../../core/rendering/Renderer2D.h"
-#include "../../core/window/Camera.h"
+#include "../../core/rendering/Renderer.h"
+#include "../../core/window/Camera2D.h"
 #include "../states/WalkState.h"
 
 class WalkLayer : public Layer {
 public:
-    WalkLayer(Input& input, Camera& camera);
+    WalkLayer(Input& input, Camera2D& camera);
     void OnUpdate(float dt) override; 
-    void OnRender(Renderer2D& renderer) override;
+    void OnRender(Renderer& renderer) override;
     void OnKey(int key, int action) override;
     void OnAttach() override;
 
@@ -22,7 +22,7 @@ private:
 private:
     Input& m_Input;
     WalkState m_State;
-    Camera& m_Camera;
+    Camera2D& m_Camera;
     Texture m_MapPinTexture;
 
 

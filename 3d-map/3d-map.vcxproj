@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -164,13 +164,15 @@
     <ClCompile Include="src\app\layers\WalkLayer.cpp" />
     <ClCompile Include="src\app\states\WalkState.cpp" />
     <ClCompile Include="src\app\systems\EventDispatcher.cpp" />
-    <ClCompile Include="src\core\window\Camera.cpp" />
+    <ClCompile Include="src\core\rendering\Mesh.cpp" />
+    <ClCompile Include="src\core\window\Camera2D.cpp" />
     <ClCompile Include="src\core\utils\FrameLimiter.cpp" />
     <ClCompile Include="src\core\rendering\buffers\IndexBuffer.cpp" />
     <ClCompile Include="src\core\input\Input.cpp" />
     <ClCompile Include="src\core\layers\LayerStack.cpp" />
-    <ClCompile Include="src\core\rendering\Renderer2D.cpp" />
+    <ClCompile Include="src\core\rendering\Renderer.cpp" />
     <ClCompile Include="src\core\rendering\Texture.cpp" />
+    <ClCompile Include="src\core\window\Camera3D.cpp" />
     <ClCompile Include="src\core\window\Window.cpp" />
     <ClCompile Include="src\core\rendering\Shader.cpp" />
     <ClCompile Include="src\core\rendering\buffers\VertexArray.cpp" />
@@ -189,18 +191,20 @@
     <ClInclude Include="src\app\states\WalkState.h" />
     <ClInclude Include="src\app\systems\EventDispatcher.h" />
     <ClInclude Include="src\app\systems\LayerManager.h" />
-    <ClInclude Include="src\core\window\Camera.h" />
+    <ClInclude Include="src\core\rendering\Mesh.h" />
+    <ClInclude Include="src\core\window\Camera2D.h" />
     <ClInclude Include="src\core\utils\FrameLimiter.h" />
     <ClInclude Include="src\core\rendering\buffers\IndexBuffer.h" />
     <ClInclude Include="src\core\input\Input.h" />
     <ClInclude Include="src\core\layers\Layer.h" />
     <ClInclude Include="src\core\layers\LayerStack.h" />
-    <ClInclude Include="src\core\rendering\Renderer2D.h" />
+    <ClInclude Include="src\core\rendering\Renderer.h" />
     <ClInclude Include="src\core\rendering\Shader.h" />
     <ClInclude Include="src\core\rendering\Texture.h" />
     <ClInclude Include="src\core\rendering\buffers\VertexArray.h" />
     <ClInclude Include="src\core\rendering\buffers\VertexBuffer.h" />
     <ClInclude Include="src\core\rendering\buffers\VertexBufferLayout.h" />
+    <ClInclude Include="src\core\window\Camera3D.h" />
     <ClInclude Include="src\core\window\IEventListener.h" />
     <ClInclude Include="src\core\window\Window.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
@@ -785,8 +789,8 @@
     <ClInclude Include="src\vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\assets\shaders\basic.frag" />
-    <None Include="src\assets\shaders\basic.vert" />
+    <None Include="src\assets\shaders\mesh.frag" />
+    <None Include="src\assets\shaders\mesh.vert" />
     <None Include="src\assets\shaders\quad.frag" />
     <None Include="src\assets\shaders\quad.vert" />
     <None Include="src\assets\shaders\text.frag" />

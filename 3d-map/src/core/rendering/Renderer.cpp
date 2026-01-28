@@ -1,4 +1,4 @@
-#include "Renderer2D.h"
+#include "Renderer.h"
 #include <GL/glew.h>
 #include <iostream>
 
@@ -6,10 +6,10 @@
 #include <freetype/freetype.h>
 #define FT_FREETYPE_H
 
-Renderer2D::Renderer2D(const std::shared_ptr<Shader>& shader)
+Renderer::Renderer(const std::shared_ptr<Shader>& shader)
     : m_QuadShader(shader) { }
 
-void Renderer2D::BeginScene(const glm::mat4& viewProjection) {
+void Renderer::BeginScene(const glm::mat4& viewProjection) {
     m_ViewProjection = viewProjection;
 
     if (m_QuadShader) {
@@ -18,9 +18,9 @@ void Renderer2D::BeginScene(const glm::mat4& viewProjection) {
     }
 }
 
-void Renderer2D::EndScene() { }
+void Renderer::EndScene() { }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) {
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) {
     if (!m_QuadInitialized)
         InitQuad();
 
@@ -43,11 +43,11 @@ void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, floa
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) {
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) {
     DrawQuad(position, size, 0.0f, color);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture, const glm::vec4& tint) {
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture, const glm::vec4& tint) {
     if (!m_QuadInitialized)
         InitQuad();
 
@@ -68,11 +68,11 @@ void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, cons
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture) {
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture) {
     DrawQuad(position, size, texture, glm::vec4(1.0f));
 }
 
-void Renderer2D::DrawLine(const glm::vec2& p0, const glm::vec2& p1, float thickness, const glm::vec4& color) {
+void Renderer::DrawLine(const glm::vec2& p0, const glm::vec2& p1, float thickness, const glm::vec4& color) {
     if (!m_LineInitialized)
         InitLine();
 
@@ -100,7 +100,7 @@ void Renderer2D::DrawLine(const glm::vec2& p0, const glm::vec2& p1, float thickn
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer2D::DrawCircle(const glm::vec2& center, float radius, const glm::vec4& color, bool filled) {
+void Renderer::DrawCircle(const glm::vec2& center, float radius, const glm::vec4& color, bool filled) {
     if (filled) {
         if (!m_CircleInitialized)
             InitCircle();
@@ -124,7 +124,7 @@ void Renderer2D::DrawCircle(const glm::vec2& center, float radius, const glm::ve
     }
 }
 
-void Renderer2D::DrawCircleOutline(const glm::vec2& center, float radius, float thickness, const glm::vec4& color) {
+void Renderer::DrawCircleOutline(const glm::vec2& center, float radius, float thickness, const glm::vec4& color) {
     const int segments = 64;
 
     for (int i = 0; i < segments; ++i) {
@@ -138,7 +138,7 @@ void Renderer2D::DrawCircleOutline(const glm::vec2& center, float radius, float 
     }
 }
 
-void Renderer2D::InitQuad() {
+void Renderer::InitQuad() {
     float vertices[] = {
         -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f,  1.0f, 0.0f,
@@ -162,7 +162,7 @@ void Renderer2D::InitQuad() {
 }
 
 
-void Renderer2D::InitLine() {
+void Renderer::InitLine() {
     float vertices[] = {
         -0.5f, -0.5f,
          0.5f, -0.5f,
@@ -183,7 +183,7 @@ void Renderer2D::InitLine() {
     m_LineInitialized = true;
 }
 
-void Renderer2D::InitCircle() {
+void Renderer::InitCircle() {
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
 
@@ -215,7 +215,7 @@ void Renderer2D::InitCircle() {
     m_CircleInitialized = true;
 }
 
-void Renderer2D::DrawText(const std::string& txt, glm::vec2 pos, float scale, const glm::vec4& color) {
+void Renderer::DrawText(const std::string& txt, glm::vec2 pos, float scale, const glm::vec4& color) {
     if (!m_FontLoaded) {
         std::cerr << "ERROR: Font not loaded. Call LoadFont() first." << std::endl;
         return;
@@ -265,7 +265,7 @@ void Renderer2D::DrawText(const std::string& txt, glm::vec2 pos, float scale, co
     }
 }
 
-void Renderer2D::LoadFont(const std::string& fontPath, unsigned int fontSize) {
+void Renderer::LoadFont(const std::string& fontPath, unsigned int fontSize) {
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
         std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
@@ -327,4 +327,30 @@ void Renderer2D::LoadFont(const std::string& fontPath, unsigned int fontSize) {
     m_TextVA->AddBuffer(*m_TextVB, layout);
 
     m_FontLoaded = true;
+}
+
+void Renderer::SetDepthMode(DepthMode mode) {
+    if (mode == DepthMode::Enabled)
+        glEnable(GL_DEPTH_TEST);
+    else
+        glDisable(GL_DEPTH_TEST);
+}
+
+void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4& transform) {
+    m_MeshShader->Bind();
+    m_MeshShader->SetUniformMat4("uModel", transform);
+    m_MeshShader->SetUniformMat4("uViewProjection", m_ViewProjection);
+
+
+    if (mesh.HasTexture()) {
+        mesh.GetTexture().Bind(0);
+        m_MeshShader->SetUniform1i("uTexture", 0);
+        m_MeshShader->SetUniform1i("uUseTexture", 1);
+    }
+    else {
+        m_MeshShader->SetUniform1i("uUseTexture", 0);
+        m_MeshShader->SetUniform4f("uColor", mesh.GetColor());
+    }
+
+    mesh.Draw();
 }

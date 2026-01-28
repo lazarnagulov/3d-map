@@ -2,9 +2,9 @@
 
 #include <glm/glm.hpp>
 
-class Camera {
+class Camera2D {
 public:
-    Camera(const glm::vec2& position = { 0 , 0 }, float zoom = 1.0f);
+    Camera2D(const glm::vec2& position = { 0 , 0 }, float zoom = 1.0f);
 
     void Move(const glm::vec2& delta);
     void Zoom(float dz);

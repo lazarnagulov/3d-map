@@ -1,7 +1,7 @@
 #include "WalkLayer.h"
 #include "GLFW/glfw3.h"
 
-WalkLayer::WalkLayer(Input& input, Camera& camera) 
+WalkLayer::WalkLayer(Input& input, Camera2D& camera) 
     : m_Input(input), m_Camera(camera), m_MapPinTexture("./src/assets/textures/map-pin.png") {}
 
 void WalkLayer::OnUpdate(float dt) {
@@ -24,7 +24,7 @@ void WalkLayer::OnAttach() {
     m_Camera.SetZoom(INITIAL_ZOOM);
 }
 
-void WalkLayer::OnRender(Renderer2D& renderer) {
+void WalkLayer::OnRender(Renderer& renderer) {
     const float playerSize = 100.0f;
     renderer.DrawQuad(
         m_State.GetPosition(),
