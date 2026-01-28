@@ -39,6 +39,7 @@ private:
 	
 	Camera2D m_Camera2D;
 	Camera3D m_Camera3D;
+	glm::vec2 m_CameraMoveDir;
 
 	ModeLayer& m_ModeLayer;
 	WalkLayer& m_WalkLayer;

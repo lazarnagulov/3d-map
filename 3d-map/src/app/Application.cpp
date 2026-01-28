@@ -16,7 +16,7 @@ Application::Application()
     m_ModeLayer(m_LayerManager.AddLayer<ModeLayer>(m_State)),
     m_CursorLayer(m_LayerManager.AddLayer<CompassCursorLayer>(m_Input,  glm::vec2(0.0f, m_Window.GetHeight()))),
     m_Camera2D({ 0,0 }, 1.0f),
-    m_Camera3D({ 0, 500, 0 }, 1.0f)
+    m_Camera3D({ 0, 300, 300 }, 1.0f)
 {
     m_BackgroundTexture = std::make_shared<Texture>("./src/assets/textures/map.jpg");
 
@@ -26,37 +26,41 @@ Application::Application()
 
     m_Window.DisableSystemCursor();
     m_MeasureLayer.SetTextPosition({ 10.0f, m_Window.GetHeight() - 50.0f });
-    glm::vec2 halfSize = {
-        m_Window.GetWidth() * 0.5f,
-        m_Window.GetHeight() * 0.5f
-    };
-
     m_EventDispatcher.SetAppKeyHandler([this](int key, int action) {
         if (key == GLFW_KEY_R && action == GLFW_PRESS) {
             m_State.SwitchMode();
-            return true; 
+            return true;
         }
 
+        float value = (action == GLFW_PRESS || action == GLFW_REPEAT) ? 1.0f : 0.0f;
+
+        if (key == GLFW_KEY_UP)    m_CameraMoveDir.y = -value;
+        if (key == GLFW_KEY_DOWN)  m_CameraMoveDir.y = value;
+        if (key == GLFW_KEY_LEFT)  m_CameraMoveDir.x = -value;
+        if (key == GLFW_KEY_RIGHT) m_CameraMoveDir.x = value;
+
         return false;
-    });
+     });
 
     m_EventDispatcher.SetWindowHeight(m_Window.GetHeight());
 
     m_WalkLayer.GetState().SetBounds(
-        { -halfSize.x, -halfSize.y + 30.0f },
-        { +halfSize.x, +halfSize.y + 30.0f }
+        { -1000.0f, -1000.0f },
+        { +1000.0f, +1000.0f }
     );
 
     m_State.SetOnModeChanged([this](AppState::Mode mode) {
         SyncLayersWithState();
+        glm::vec3 cameraPos = m_Camera3D.GetPosition();
+        
         if (mode == AppState::Mode::MEASURE) {
-            m_Camera2D.SetZoom(1.0f);
-            m_Camera2D.SetPosition({ 0.0f,0.0f });
+            cameraPos.y = 800.0f;
         }
         else {
-            m_Camera2D.SetZoom(1.5f);
-            m_Camera2D.SetPosition(m_WalkLayer.GetState().GetPosition());
+            cameraPos.y = 300.0f;
         }
+
+        m_Camera3D.SetPosition(cameraPos);
     });
 
     SyncLayersWithState();
@@ -125,6 +129,17 @@ void Application::InitRenderer() {
 void Application::Update(float deltaTime) {
     m_Window.Update();
 
+    const float moveSpeed = 300.0f;
+    glm::vec3 pos = m_Camera3D.GetPosition();
+
+    pos.x += m_CameraMoveDir.x * moveSpeed * deltaTime;
+    pos.z += m_CameraMoveDir.y * moveSpeed * deltaTime;
+
+    pos.x = glm::clamp(pos.x, -1000.0f, 1000.0f);
+    pos.z = glm::clamp(pos.z, -1000.0f, 1000.0f);
+
+    m_Camera3D.SetPosition(pos);
+
     m_EventDispatcher.DispatchToLayers([&](Layer& layer) {
         layer.OnUpdate(deltaTime);
     });
@@ -148,15 +163,6 @@ void Application::PrepareFrame(int width, int height) {
 
 void Application::RenderWorld(int width, int height) {
     m_Renderer->BeginScene(m_Camera3D.GetViewProjection(width, height));
-    
-    static bool once = true;
-    if (once) {
-        glm::vec3 pos = m_Camera3D.GetPosition();
-        std::cout << "Camera pos: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
-        std::cout << "Camera pitch: " << m_Camera3D.GetPitch() << std::endl;
-        std::cout << "Camera yaw: " << m_Camera3D.GetYaw() << std::endl;
-        once = false;
-    }
     m_Renderer->DrawMesh(*m_MapMesh, glm::mat4(1.0));
 
     if(m_WalkLayer.IsEnabled())
