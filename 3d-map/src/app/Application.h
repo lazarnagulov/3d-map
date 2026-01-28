@@ -28,7 +28,6 @@ private:
 	void InitWindowHandlers();
 	void InitRenderer();
 	void SyncLayersWithState();
-	void PrepareFrame(int width, int height);
 	void RenderWorld(int width, int height);
 	void RenderUI(int width, int height);
 private:

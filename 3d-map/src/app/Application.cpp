@@ -149,12 +149,6 @@ void Application::SyncLayersWithState() {
     m_ModeLayer.SetEnabled(true);
 }
 
-void Application::PrepareFrame(int width, int height) {
-    glViewport(0, 0, width, height);
-    glClearColor(0.8f, 0.8f, 0.8f, 0.8f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
 void Application::RenderWorld(int width, int height) {
     m_Renderer->BeginScene(m_Camera3D.GetViewProjection(width, height));
     m_Renderer->DrawMesh(*m_MapMesh, glm::mat4(1.0));
@@ -204,8 +198,7 @@ void Application::RenderUI(int width, int height) {
 void Application::Render() {
     int width = m_Window.GetWidth();
     int height = m_Window.GetHeight();
-    m_Renderer->SetDepthMode(Renderer::DepthMode::Enabled);
-    PrepareFrame(width, height);
+    m_Window.Clear(0.8f, 0.8f, 0.8f, 0.8f);
     RenderWorld(width, height);
     m_Renderer->SetDepthMode(Renderer::DepthMode::Disabled);
     RenderUI(width, height);

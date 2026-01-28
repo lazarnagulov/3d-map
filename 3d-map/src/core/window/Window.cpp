@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 #include <iostream>
 
 #include "Window.h"
@@ -23,6 +24,11 @@ void Window::InitGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+}
+void Window::Clear(float r, float g, float b, float a) {
+    glViewport(0, 0, m_Width, m_Height);
+    glClearColor(r, g, b, a);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::CreateFullscreenWindow() {
