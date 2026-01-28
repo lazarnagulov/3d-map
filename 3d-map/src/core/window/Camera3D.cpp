@@ -4,7 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/trigonometric.hpp>
 
-Camera3D::Camera3D(const glm::vec3& position /*= { 0 , 0, 0 }*/, float zoom /*= 1.0f*/) {}
+Camera3D::Camera3D(const glm::vec3& position /*= { 0 , 0, 0 }*/, float zoom /*= 1.0f*/)
+    : m_Position(position), m_Zoom(zoom) {}
 
 void Camera3D::Move(const glm::vec3& delta) {
     m_Position += delta;

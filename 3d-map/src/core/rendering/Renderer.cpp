@@ -328,3 +328,29 @@ void Renderer::LoadFont(const std::string& fontPath, unsigned int fontSize) {
 
     m_FontLoaded = true;
 }
+
+void Renderer::SetDepthMode(DepthMode mode) {
+    if (mode == DepthMode::Enabled)
+        glEnable(GL_DEPTH_TEST);
+    else
+        glDisable(GL_DEPTH_TEST);
+}
+
+void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4& transform) {
+    m_MeshShader->Bind();
+    m_MeshShader->SetUniformMat4("uModel", transform);
+    m_MeshShader->SetUniformMat4("uViewProjection", m_ViewProjection);
+
+
+    if (mesh.HasTexture()) {
+        mesh.GetTexture().Bind(0);
+        m_MeshShader->SetUniform1i("uTexture", 0);
+        m_MeshShader->SetUniform1i("uUseTexture", 1);
+    }
+    else {
+        m_MeshShader->SetUniform1i("uUseTexture", 0);
+        m_MeshShader->SetUniform4f("uColor", mesh.GetColor());
+    }
+
+    mesh.Draw();
+}

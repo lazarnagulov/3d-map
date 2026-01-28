@@ -84,6 +84,9 @@
     <ClCompile Include="src\core\window\Camera3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\rendering\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">
@@ -1901,6 +1904,9 @@
     <ClInclude Include="src\core\window\Camera3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\rendering\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\assets\shaders\quad.frag" />
@@ -3581,8 +3587,8 @@
     </None>
     <None Include="src\assets\shaders\text.frag" />
     <None Include="src\assets\shaders\text.vert" />
-    <None Include="src\assets\shaders\basic.frag" />
-    <None Include="src\assets\shaders\basic.vert" />
+    <None Include="src\assets\shaders\mesh.vert" />
+    <None Include="src\assets\shaders\mesh.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\vendor\glm\CMakeLists.txt" />

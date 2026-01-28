@@ -9,6 +9,7 @@
 #include "systems/EventDispatcher.h"
 
 #include "../core/window/Camera2D.h"
+#include "../core/window/Camera3D.h"
 #include "../core/window/Window.h"
 #include "../core/layers/LayerStack.h"
 
@@ -28,7 +29,6 @@ private:
 	void SyncLayersWithState();
 	void PrepareFrame(int width, int height);
 	void RenderWorld(int width, int height);
-	void RenderBackground();
 	void RenderUI(int width, int height);
 private:
 	Input m_Input;
@@ -37,7 +37,8 @@ private:
 	EventDispatcher m_EventDispatcher;
 	Window m_Window;
 	
-	Camera2D m_Camera;
+	Camera2D m_Camera2D;
+	Camera3D m_Camera3D;
 
 	ModeLayer& m_ModeLayer;
 	WalkLayer& m_WalkLayer;
@@ -49,6 +50,8 @@ private:
 	std::unique_ptr<Renderer> m_Renderer;
 	std::shared_ptr<Shader> m_QuadShader;
 	std::shared_ptr<Shader> m_TextShader;
+	std::shared_ptr<Shader> m_MeshShader;
 
-	std::unique_ptr<Texture> m_BackgroundTexture;
+	std::shared_ptr<Texture> m_BackgroundTexture;
+	std::unique_ptr<Mesh> m_MapMesh;
 };
