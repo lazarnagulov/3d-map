@@ -13,7 +13,10 @@ public:
 	void OnKey(int key, int action) override;
 	void OnRender(Renderer& renderer) override;
 	inline void SetTextPosition(const glm::vec2& postion) { m_TextPosition = postion; }
-	inline void SetWindowSize(const glm::vec2& size) { m_WindowSize = size; }
+	inline void SetWindowSize(int width, int height) { 
+		m_WindowWidth = width;
+		m_WindowHeight = height;
+	}
 	inline const MeasureState& GetState() const { return m_State; }
 private:
 	void DrawLine(Renderer& renderer, const glm::vec3& a, const glm::vec3& b);
@@ -21,7 +24,8 @@ private:
 	void InitializeMashes(Renderer& renderer);
 private:
 	glm::vec2 m_TextPosition;
-	glm::vec2 m_WindowSize;
+	int m_WindowWidth;
+	int m_WindowHeight;
 	Input& m_Input;
 	MeasureState m_State;
 	Camera3D m_Camera;

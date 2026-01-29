@@ -47,7 +47,7 @@ void Application::InitWindowHandlers() {
     });
 
     m_EventDispatcher.SetWindowHeight(m_Window.GetHeight());
-    m_MeasureLayer.SetWindowSize({ m_Window.GetWidth(), m_Window.GetHeight() });
+    m_MeasureLayer.SetWindowSize(m_Window.GetWidth(), m_Window.GetHeight());
 
     m_WalkLayer.GetState().SetBounds(
         { -1000.0f, -1000.0f },
@@ -121,7 +121,6 @@ void Application::InitRenderer() {
 
 void Application::Update(float deltaTime) {
     m_Window.Update();
-    m_MeasureLayer.SetWindowSize({ m_Window.GetWidth(), m_Window.GetHeight() });
 
     const float moveSpeed = 300.0f;
     glm::vec3 pos = m_Camera3D.GetPosition();

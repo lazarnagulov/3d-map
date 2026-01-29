@@ -14,8 +14,7 @@ public:
     inline const std::vector<glm::vec3>& GetPoints() const { return m_Points; }
     inline float GetTotalDistance() const { return m_TotalDistance; }
 
-    int FindPointNear(const Ray& ray, float threshold = 10.0f) const;
-
+    int FindPointNear(const glm::vec3& pos, float threshold = 10.0f) const;
 private:
     void RecalculateDistance();
 private:

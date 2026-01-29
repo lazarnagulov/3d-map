@@ -28,23 +28,15 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
     if (action != GLFW_PRESS)
         return;
 
-    Ray ray = m_Camera.ScreenToWorld(
-        static_cast<float>(x),
-        static_cast<float>(y),
-        m_WindowSize.x,
-        m_WindowSize.y
-    );
-
-    const size_t pontCount = m_State.GetPoints().size();
+    glm::vec3 mouseWorld = MouseToWorld(x, y);
+    int index = m_State.FindPointNear(mouseWorld, 20.0f);
     
-    int index = m_State.FindPointNear(ray);
-    if (index != -1 && index < pontCount) {
+    if (index != -1) {
         m_State.RemovePoint(index);
         return;
     }
 
-    glm::vec3 point = MouseToWorld(x, y);
-    m_State.AddPoint(point);
+    m_State.AddPoint(mouseWorld);
 }
 
 void MeasureLayer::OnRender(Renderer& renderer) {
@@ -52,14 +44,15 @@ void MeasureLayer::OnRender(Renderer& renderer) {
     const auto& points = m_State.GetPoints();
 
     for (const auto& point : points) {
-        glm::mat4 pinTransform = glm::translate(glm::mat4(1.0f),point);
+        glm::mat4 pinTransform = glm::translate(glm::mat4(1.0f), point);
         renderer.DrawMesh(*m_PinCylinder, pinTransform);
-        glm::mat4 ballTransform = glm::translate(glm::mat4(1.0f), glm::vec3(point.x, point.y + 75.0f, point.z));
+        glm::mat4 ballTransform = glm::translate(glm::mat4(1.0f), point + glm::vec3(0, 75, 0));
         renderer.DrawMesh(*m_PinSphere, ballTransform);
     }
+
     for (size_t i = 0; i + 1 < points.size(); i++) {
-        glm::vec3 p1(points[i].x, points[i].y + 0.5f , points[i].z);
-        glm::vec3 p2(points[i + 1].x, points[i + 1].y + 0.5f, points[i + 1].z);
+        glm::vec3 p1 = points[i] + glm::vec3(0, 0.5f, 0);
+        glm::vec3 p2 = points[i + 1] + glm::vec3(0, 0.5f, 0);
         DrawLine(renderer, p1, p2);
     }
 }
@@ -73,8 +66,8 @@ glm::vec3 MeasureLayer::MouseToWorld(double x, double y) {
     Ray ray = m_Camera.ScreenToWorld(
         static_cast<float>(x),
         static_cast<float>(y),
-        m_WindowSize.x,
-        m_WindowSize.y
+        m_WindowWidth,
+        m_WindowHeight
     );
 
     return IntersectRayWithPlane(ray, 0.0f);
