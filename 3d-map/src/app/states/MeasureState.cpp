@@ -1,6 +1,6 @@
 #include "MeasureState.h"
 
-void MeasureState::AddPoint(const glm::vec2& point) {
+void MeasureState::AddPoint(const glm::vec3& point) {
 	m_Points.push_back(point);
 	RecalculateDistance();
 }
@@ -17,15 +17,26 @@ void MeasureState::Reset() {
 	m_TotalDistance = 0.0f;
 }
 
-int MeasureState::FindPointNear(const glm::vec2& pos, float threshold /* = 10.0f */) const {
-	for (size_t i = 0; i < m_Points.size(); ++i) {
-		float dist = glm::distance(m_Points[i], pos);
-		if (dist <= threshold) {
-			return static_cast<int>(i);
-		}
-	}
-	return -1;
+int MeasureState::FindPointNear(const Ray& ray, float threshold) const {
+    for (size_t i = 0; i < m_Points.size(); ++i) {
+        const glm::vec3& p = m_Points[i];
+
+        glm::vec3 toPoint = p - ray.origin;
+        float t = glm::dot(toPoint, ray.direction);
+
+        if (t < 0.0f)
+            continue;
+
+        glm::vec3 closest = ray.origin + ray.direction * t;
+        float dist = glm::distance(p, closest);
+
+        if (dist <= threshold)
+            return static_cast<int>(i);
+    }
+
+    return -1;
 }
+
 
 void MeasureState::RecalculateDistance() {
 	m_TotalDistance = 0.0f;
