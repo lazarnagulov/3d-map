@@ -6,9 +6,9 @@ WalkLayer::WalkLayer(Input& input, Camera2D& camera)
 
 void WalkLayer::OnUpdate(float dt) {
     uint8_t directions = 0;
-    if (m_Input.IsKeyHeld(GLFW_KEY_W))
-        directions |= WalkState::MoveDirection::UP;
     if (m_Input.IsKeyHeld(GLFW_KEY_S))
+        directions |= WalkState::MoveDirection::UP;
+    if (m_Input.IsKeyHeld(GLFW_KEY_W))
         directions |= WalkState::MoveDirection::DOWN;
     if (m_Input.IsKeyHeld(GLFW_KEY_A)) 
         directions |= WalkState::MoveDirection::LEFT;
@@ -17,38 +17,23 @@ void WalkLayer::OnUpdate(float dt) {
 
     m_State.Update(dt, directions);
     m_Camera.SetPosition(m_State.GetPosition());
-    UpdateCameraZoom(dt);
-}
-
-void WalkLayer::OnAttach() {
-    m_Camera.SetZoom(INITIAL_ZOOM);
 }
 
 void WalkLayer::OnRender(Renderer& renderer) {
-    const float playerSize = 100.0f;
-    renderer.DrawQuad(
-        m_State.GetPosition(),
-        { playerSize, playerSize },
-        m_MapPinTexture
-    );
+    glm::vec2 pos2D = m_State.GetPosition();
+    glm::vec3 pos3D(pos2D.x, PLAYER_HEIGHT, pos2D.y);
+
+    if (!m_PlayerCube) {
+        m_PlayerCube = renderer.CreateCubeMesh(PLAYER_SIZE);
+        m_PlayerCube->SetColor({ 0.2f, 0.6f, 1.0f, 1.0f });
+    }
+
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos3D);
+    renderer.DrawMesh(*m_PlayerCube, transform);
 }
 
 void WalkLayer::OnKey(int key, int action) {
     if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
-        m_Camera.SetZoom(INITIAL_ZOOM);
         m_State.Reset();
-    }
-}
-
-void WalkLayer::UpdateCameraZoom(float dt) {
-    if (m_Input.IsKeyHeld(GLFW_KEY_EQUAL) || m_Input.IsKeyHeld(GLFW_KEY_KP_ADD)) {
-        float zoomDelta = m_ZoomSpeed * dt;
-        float newZoom = m_Camera.GetZoom() + zoomDelta;
-        m_Camera.SetZoom(glm::clamp(newZoom, m_MinZoom, m_MaxZoom));
-    }
-    if (m_Input.IsKeyHeld(GLFW_KEY_MINUS) || m_Input.IsKeyHeld(GLFW_KEY_KP_SUBTRACT)) {
-        float zoomDelta = m_ZoomSpeed * dt;
-        float newZoom = m_Camera.GetZoom() - zoomDelta;
-        m_Camera.SetZoom(glm::clamp(newZoom, m_MinZoom, m_MaxZoom));
     }
 }

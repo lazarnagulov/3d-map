@@ -2,52 +2,58 @@
 #include "GLFW/glfw3.h"
 #include <iostream>
 
-MeasureLayer::MeasureLayer(Input& input) : m_Input(input), m_TextPosition({ 0.0f, 0.0f }) {}
+namespace {
+    constexpr float PIN_CYLINDER_RADIUS = 3.0f;
+    constexpr float PIN_CYLINDER_HEIGHT = 75.0f;
+    constexpr int   PIN_CYLINDER_SEGMENTS = 16;
 
+    constexpr float PIN_SPHERE_RADIUS = 15.0f;
+    constexpr int   PIN_SPHERE_SEGMENTS = 16;
+
+    constexpr float LINE_CYLINDER_RADIUS = 2.0f;
+    constexpr float LINE_CYLINDER_HEIGHT = 1.0f;
+    constexpr int   LINE_CYLINDER_SEGMENTS = 12;
+
+    constexpr glm::vec4 PIN_CYLINDER_COLOR{ 0.7f, 0.7f, 0.7f, 1.0f };
+    constexpr glm::vec4 PIN_SPHERE_COLOR{ 1.0f, 0.0f, 0.0f, 1.0f };
+    constexpr glm::vec4 LINE_CYLINDER_COLOR{ 1.0f, 0.5f, 0.0f, 1.0f };
+}
+
+glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY = 0.0f);
+
+MeasureLayer::MeasureLayer(Input& input, Camera3D& camera)
+    : m_Input(input), m_TextPosition({ 0.0f, 0.0f }), m_Camera(camera) {}
 
 void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
-    glm::vec2 point = { static_cast<float>(x), static_cast<float>(y) };
+    if (action != GLFW_PRESS)
+        return;
 
-    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
-        int position = m_State.FindPointNear(point);
-        position < 0 ? m_State.AddPoint(point) : m_State.RemovePoint(position);
+    glm::vec3 mouseWorld = MouseToWorld(x, y);
+    int index = m_State.FindPointNear(mouseWorld, 20.0f);
+    
+    if (index != -1) {
+        m_State.RemovePoint(index);
+        return;
     }
+
+    m_State.AddPoint(mouseWorld);
 }
 
 void MeasureLayer::OnRender(Renderer& renderer) {
+    InitializeMashes(renderer);
     const auto& points = m_State.GetPoints();
-    
-    for (size_t i = 0; i < points.size(); i++) {
-        const glm::vec2& p = points[i];
 
-        renderer.DrawCircle(p, 10.0f, { 1,1,1,1 }, true);
-
-        if (i > 0)
-            DrawLine(renderer, points[i - 1], points[i]);
+    for (const auto& point : points) {
+        glm::mat4 pinTransform = glm::translate(glm::mat4(1.0f), point);
+        renderer.DrawMesh(*m_PinCylinder, pinTransform);
+        glm::mat4 ballTransform = glm::translate(glm::mat4(1.0f), point + glm::vec3(0, 75, 0));
+        renderer.DrawMesh(*m_PinSphere, ballTransform);
     }
 
-    auto totalDistance = m_State.GetTotalDistance();
-    renderer.DrawText(
-        "Total distance: " + std::to_string(totalDistance), 
-        m_TextPosition, 
-        0.5f, 
-        {0.0f, 0.0f, 0.0f, 1.0f}
-    );
-}
-
-void MeasureLayer::DrawLine(Renderer& renderer, const glm::vec2& p0, const glm::vec2& p1) {
-    glm::vec2 dir = p1 - p0;
-    float len = glm::length(dir);
-
-    if (len > 0.001f) {
-        glm::vec2 n = dir / len;
-
-        renderer.DrawLine(
-            p0 + n * CIRCLE_RADIUS, 
-            p1 - n * CIRCLE_RADIUS, 
-            LINE_THICKNESS, 
-            { 1.0f, 0.5f, 0.0f, 1.0f }
-        );
+    for (size_t i = 0; i + 1 < points.size(); i++) {
+        glm::vec3 p1 = points[i] + glm::vec3(0, 0.5f, 0);
+        glm::vec3 p2 = points[i + 1] + glm::vec3(0, 0.5f, 0);
+        DrawLine(renderer, p1, p2);
     }
 }
 
@@ -55,3 +61,83 @@ void MeasureLayer::OnKey(int key, int action) {
     if (key == GLFW_KEY_0 && action == GLFW_PRESS)
         m_State.Reset();
 }
+
+glm::vec3 MeasureLayer::MouseToWorld(double x, double y) {
+    Ray ray = m_Camera.ScreenToWorld(
+        static_cast<float>(x),
+        static_cast<float>(y),
+        m_WindowWidth,
+        m_WindowHeight
+    );
+
+    return IntersectRayWithPlane(ray, 0.0f);
+}
+
+void MeasureLayer::DrawLine(Renderer& renderer, const glm::vec3& p0, const glm::vec3& p1) {
+    glm::vec3 dir = p1 - p0;
+    float len = glm::length(dir);
+    if (len < 0.001f)
+        return;
+
+    glm::vec3 n = glm::normalize(dir);
+
+    glm::vec3 up(0.0f, 1.0f, 0.0f);
+    glm::vec3 axis = glm::cross(up, n);
+    float axisLen = glm::length(axis);
+
+    glm::mat4 rot(1.0f);
+    if (axisLen > 0.0001f) {
+        axis /= axisLen;
+        float angle = acos(glm::clamp(glm::dot(up, n), -1.0f, 1.0f));
+        rot = glm::rotate(glm::mat4(1.0f), angle, axis);
+    }
+    else if (glm::dot(up, n) < 0.0f) {
+        rot = glm::rotate(glm::mat4(1.0f), glm::pi<float>(), glm::vec3(1, 0, 0));
+    }
+
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), { 1.0f, len, 1.0f });
+    glm::mat4 translateUp = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, 0.0f));
+
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), p0)
+        * rot
+        * translateUp
+        * scaleMat;
+
+    renderer.DrawMesh(*m_LineCylinder, transform);
+}
+
+void MeasureLayer::InitializeMashes(Renderer& renderer) {
+    if (!m_PinCylinder) {
+        m_PinCylinder = renderer.CreateCylinderMesh(
+            PIN_CYLINDER_RADIUS,
+            PIN_CYLINDER_HEIGHT,
+            PIN_CYLINDER_SEGMENTS
+        );
+        m_PinCylinder->SetColor(PIN_CYLINDER_COLOR);
+
+        m_PinSphere = renderer.CreateSphereMesh(
+            PIN_SPHERE_RADIUS,
+            PIN_SPHERE_SEGMENTS
+        );
+        m_PinSphere->SetColor(PIN_SPHERE_COLOR);
+    }
+
+    if (!m_LineCylinder) {
+        m_LineCylinder = renderer.CreateCylinderMesh(
+            LINE_CYLINDER_RADIUS,
+            LINE_CYLINDER_HEIGHT,
+            LINE_CYLINDER_SEGMENTS
+        );
+        m_LineCylinder->SetColor(LINE_CYLINDER_COLOR);
+    }
+}
+static glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY) {
+    float denom = ray.direction.y;
+
+    if (glm::abs(denom) < 0.00001f)
+        return ray.origin;
+
+    float t = (planeY - ray.origin.y) / denom;
+    return ray.origin + ray.direction * t;
+}
+

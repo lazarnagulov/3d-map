@@ -354,3 +354,110 @@ void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4& transform) {
 
     mesh.Draw();
 }
+
+std::unique_ptr<Mesh> Renderer::CreateCubeMesh(float size) {
+    float s = size * 0.5f;
+    std::vector<Vertex> vertices = {
+        {{-s,-s, s}, {0,0,1}, {0,0}}, {{ s,-s, s}, {0,0,1}, {1,0}},
+        {{ s, s, s}, {0,0,1}, {1,1}}, {{-s, s, s}, {0,0,1}, {0,1}},
+        {{ s,-s,-s}, {0,0,-1}, {0,0}}, {{-s,-s,-s}, {0,0,-1}, {1,0}},
+        {{-s, s,-s}, {0,0,-1}, {1,1}}, {{ s, s,-s}, {0,0,-1}, {0,1}},
+        {{-s, s, s}, {0,1,0}, {0,0}}, {{ s, s, s}, {0,1,0}, {1,0}},
+        {{ s, s,-s}, {0,1,0}, {1,1}}, {{-s, s,-s}, {0,1,0}, {0,1}},
+        {{-s,-s,-s}, {0,-1,0}, {0,0}}, {{ s,-s,-s}, {0,-1,0}, {1,0}},
+        {{ s,-s, s}, {0,-1,0}, {1,1}}, {{-s,-s, s}, {0,-1,0}, {0,1}},
+        {{ s,-s, s}, {1,0,0}, {0,0}}, {{ s,-s,-s}, {1,0,0}, {1,0}},
+        {{ s, s,-s}, {1,0,0}, {1,1}}, {{ s, s, s}, {1,0,0}, {0,1}},
+        {{-s,-s,-s}, {-1,0,0}, {0,0}}, {{-s,-s, s}, {-1,0,0}, {1,0}},
+        {{-s, s, s}, {-1,0,0}, {1,1}}, {{-s, s,-s}, {-1,0,0}, {0,1}}
+    };
+
+    std::vector<uint32_t> indices;
+    for (int i = 0; i < 6; i++) {
+        unsigned int base = i * 4;
+        indices.insert(indices.end(), {
+            base + 0, base + 1, base + 2,
+            base + 2, base + 3, base + 0
+            });
+    }
+
+    return std::make_unique<Mesh>(vertices, indices);
+}
+
+std::unique_ptr<Mesh> Renderer::CreateSphereMesh(float radius, int segments) {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    for (int lat = 0; lat <= segments; lat++) {
+        float theta = lat * 3.14159265359f / segments;
+        float sinTheta = sin(theta);
+        float cosTheta = cos(theta);
+
+        for (int lon = 0; lon <= segments; lon++) {
+            float phi = lon * 2.0f * 3.14159265359f / segments;
+            float sinPhi = sin(phi);
+            float cosPhi = cos(phi);
+
+            glm::vec3 pos(
+                radius * sinTheta * cosPhi,
+                radius * cosTheta,
+                radius * sinTheta * sinPhi
+            );
+            glm::vec3 normal = glm::normalize(pos);
+            glm::vec2 uv((float)lon / segments, (float)lat / segments);
+
+            vertices.push_back({ pos, normal, uv });
+        }
+    }
+
+    for (int lat = 0; lat < segments; lat++) {
+        for (int lon = 0; lon < segments; lon++) {
+            unsigned int first = lat * (segments + 1) + lon;
+            unsigned int second = first + segments + 1;
+
+            indices.insert(indices.end(), {
+                first, second, first + 1,
+                second, second + 1, first + 1
+            });
+        }
+    }
+
+    return std::make_unique<Mesh>(vertices, indices);
+}
+
+std::unique_ptr<Mesh> Renderer::CreateCylinderMesh(float radius, float height, int segments) {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    vertices.push_back({ {0, 0, 0}, {0, -1, 0}, {0.5f, 0.5f} });
+    vertices.push_back({ {0, height, 0}, {0, 1, 0}, {0.5f, 0.5f} });
+
+    for (int i = 0; i <= segments; i++) {
+        float angle = (float)i / segments * 2.0f * 3.14159265359f;
+        float x = cos(angle) * radius;
+        float z = sin(angle) * radius;
+        glm::vec3 normal = glm::normalize(glm::vec3(x, 0, z));
+
+        vertices.push_back({ {x, 0, z}, normal, {(float)i / segments, 0} });
+        vertices.push_back({ {x, height, z}, normal, {(float)i / segments, 1} });
+    }
+
+    for (int i = 0; i < segments; i++) {
+        indices.insert(indices.end(), { 0, static_cast<unsigned int>(2 + i * 2 + 2), static_cast<unsigned int>(2 + i * 2) });
+    }
+
+    for (int i = 0; i < segments; i++) {
+        indices.insert(indices.end(), { 1, static_cast<unsigned int>(3 + i * 2), static_cast<unsigned int>(3 + i) * 2 + 2 });
+    }
+
+    for (int i = 0; i < segments; i++) {
+        unsigned int b1 = 2 + i * 2;
+        unsigned int t1 = 3 + i * 2;
+        unsigned int b2 = 2 + i * 2 + 2;
+        unsigned int t2 = 3 + i * 2 + 2;
+
+        indices.insert(indices.end(), { b1, b2, t1, t1, b2, t2 });
+    }
+
+    return std::make_unique<Mesh>(vertices, indices);
+}

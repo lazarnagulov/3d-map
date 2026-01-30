@@ -13,6 +13,7 @@ public:
 	void ApplyLetterbox(float targetAspectRatio = 1.0f);
 	void Update();
 	void DisableSystemCursor();
+	void Clear(float r, float g, float b, float a);
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }

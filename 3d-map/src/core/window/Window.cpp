@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 #include <iostream>
 
 #include "Window.h"
@@ -24,13 +25,18 @@ void Window::InitGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
+void Window::Clear(float r, float g, float b, float a) {
+    glViewport(0, 0, m_Width, m_Height);
+    glClearColor(r, g, b, a);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
 void Window::CreateFullscreenWindow() {
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     m_Width = mode->width;
     m_Height = mode->height;
-    m_Window = glfwCreateWindow(m_Width, m_Height, "3D map", nullptr, nullptr);
+    m_Window = glfwCreateWindow(m_Width, m_Height, "3D map", monitor, nullptr);
 
     if (!m_Window) {
         std::cerr << "Window creation failed\n";

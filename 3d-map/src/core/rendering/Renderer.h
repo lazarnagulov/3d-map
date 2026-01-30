@@ -41,6 +41,10 @@ public:
     void DrawText(const std::string& txt, glm::vec2 pos, float scale, const glm::vec4& color = glm::vec4(1.0f));
     void LoadFont(const std::string& fontPath, unsigned int fontSize = 48);
     
+    std::unique_ptr<Mesh> CreateCubeMesh(float size);
+    std::unique_ptr<Mesh> CreateCylinderMesh(float radius, float height, int segments = 16);
+    std::unique_ptr<Mesh> CreateSphereMesh(float radius, int segments = 16);
+
     void DrawMesh(const Mesh& mesh, const glm::mat4& transform);
     inline void SetTextShader(std::shared_ptr<Shader>& shader) { m_TextShader = shader; }
     inline void SetMeshShader(std::shared_ptr<Shader>& shader) { m_MeshShader = shader; }

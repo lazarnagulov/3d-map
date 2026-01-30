@@ -25,9 +25,9 @@ public:
 	inline const Window& GetWindow() const { return m_Window; }
 	inline Window& GetWindow() { return m_Window; }
 private:
+	void InitWindowHandlers();
 	void InitRenderer();
 	void SyncLayersWithState();
-	void PrepareFrame(int width, int height);
 	void RenderWorld(int width, int height);
 	void RenderUI(int width, int height);
 private:
@@ -39,6 +39,7 @@ private:
 	
 	Camera2D m_Camera2D;
 	Camera3D m_Camera3D;
+	glm::vec2 m_CameraMoveDir;
 
 	ModeLayer& m_ModeLayer;
 	WalkLayer& m_WalkLayer;

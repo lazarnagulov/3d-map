@@ -12,58 +12,55 @@ Application::Application()
     m_EventDispatcher(m_LayerStack, m_Input),
     m_LayerManager(m_LayerStack),
     m_WalkLayer(m_LayerManager.AddLayer<WalkLayer>(m_Input, m_Camera2D)),
-    m_MeasureLayer(m_LayerManager.AddLayer<MeasureLayer>(m_Input)),
+    m_MeasureLayer(m_LayerManager.AddLayer<MeasureLayer>(m_Input, m_Camera3D)),
     m_ModeLayer(m_LayerManager.AddLayer<ModeLayer>(m_State)),
-    m_CursorLayer(m_LayerManager.AddLayer<CompassCursorLayer>(m_Input,  glm::vec2(0.0f, m_Window.GetHeight()))),
+    m_CursorLayer(m_LayerManager.AddLayer<CompassCursorLayer>(m_Input, glm::vec2(0.0f, m_Window.GetHeight()))),
     m_Camera2D({ 0,0 }, 1.0f),
-    m_Camera3D({ 0, 500, 0 }, 1.0f)
+    m_Camera3D({ 0, 300, 300 }, 60.0f, -90.0f, -45.0f)
 {
     m_BackgroundTexture = std::make_shared<Texture>("./src/assets/textures/map.jpg");
-
     InitRenderer();
-    m_Camera3D.SetPitch(-45.0f);
-    m_Camera3D.SetYaw(-90.0f);
-
-    m_Window.DisableSystemCursor();
-    m_MeasureLayer.SetTextPosition({ 10.0f, m_Window.GetHeight() - 50.0f });
-    glm::vec2 halfSize = {
-        m_Window.GetWidth() * 0.5f,
-        m_Window.GetHeight() * 0.5f
-    };
-
-    m_EventDispatcher.SetAppKeyHandler([this](int key, int action) {
-        if (key == GLFW_KEY_R && action == GLFW_PRESS) {
-            m_State.SwitchMode();
-            return true; 
-        }
-
-        return false;
-    });
-
-    m_EventDispatcher.SetWindowHeight(m_Window.GetHeight());
-
-    m_WalkLayer.GetState().SetBounds(
-        { -halfSize.x, -halfSize.y + 30.0f },
-        { +halfSize.x, +halfSize.y + 30.0f }
-    );
-
-    m_State.SetOnModeChanged([this](AppState::Mode mode) {
-        SyncLayersWithState();
-        if (mode == AppState::Mode::MEASURE) {
-            m_Camera2D.SetZoom(1.0f);
-            m_Camera2D.SetPosition({ 0.0f,0.0f });
-        }
-        else {
-            m_Camera2D.SetZoom(1.5f);
-            m_Camera2D.SetPosition(m_WalkLayer.GetState().GetPosition());
-        }
-    });
-
+    InitWindowHandlers();
     SyncLayersWithState();
 }
 
 Application::~Application() = default;
 
+
+void Application::InitWindowHandlers() {
+    m_Window.DisableSystemCursor();
+    m_MeasureLayer.SetTextPosition({ 10.0f, m_Window.GetHeight() - 50.0f });
+    m_EventDispatcher.SetAppKeyHandler([this](int key, int action) {
+        if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+            m_State.SwitchMode();
+            return true;
+        }
+
+        float value = (action == GLFW_PRESS || action == GLFW_REPEAT) ? 1.0f : 0.0f;
+
+        if (key == GLFW_KEY_UP)    m_CameraMoveDir.y = -value;
+        if (key == GLFW_KEY_DOWN)  m_CameraMoveDir.y = value;
+        if (key == GLFW_KEY_LEFT)  m_CameraMoveDir.x = -value;
+        if (key == GLFW_KEY_RIGHT) m_CameraMoveDir.x = value;
+
+        return false;
+    });
+
+    m_EventDispatcher.SetWindowHeight(m_Window.GetHeight());
+    m_MeasureLayer.SetWindowSize(m_Window.GetWidth(), m_Window.GetHeight());
+
+    m_WalkLayer.GetState().SetBounds(
+        { -1000.0f, -1000.0f },
+        { +1000.0f, +1000.0f }
+    );
+
+    m_State.SetOnModeChanged([this](AppState::Mode mode) {
+        SyncLayersWithState();
+        glm::vec3 cameraPos = m_Camera3D.GetPosition();
+        cameraPos = mode == AppState::Mode::MEASURE ? cameraPos = { 0, 900.0f, 900.0f } : cameraPos = { 0, 300.0f, 300.0f };
+        m_Camera3D.SetPosition(cameraPos);
+    });
+}
 
 void Application::Run(float targetFps) {
     FrameLimiter frameLimiter(targetFps);
@@ -71,10 +68,10 @@ void Application::Run(float targetFps) {
         if (frameLimiter.ShouldRender()) {
             Render();
             m_Renderer->DrawText(
-                std::to_string(frameLimiter.GetFps()) + " fps", 
-                {10.0f, m_Window.GetHeight() - 25.0f}, 
-                0.5f, 
-                {0.0f, 0.0f, 0.0f, 1.0f}
+                std::to_string(frameLimiter.GetFps()) + " fps",
+                { 10.0f, m_Window.GetHeight() - 25.0f },
+                0.5f,
+                { 0.0f, 0.0f, 0.0f, 1.0f }
             );
             Update(frameLimiter.GetDeltaTime());
         }
@@ -101,10 +98,10 @@ void Application::InitRenderer() {
     );
 
     std::vector<Vertex> mapVertices = {
-        { {-mapWidth / 2, 0.0f, -mapHeight / 2}, {0,1,0}, {0, 1} }, 
-        { { mapWidth / 2, 0.0f, -mapHeight / 2}, {0,1,0}, {1, 1} }, 
+        { {-mapWidth / 2, 0.0f, -mapHeight / 2}, {0,1,0}, {0, 1} },
+        { { mapWidth / 2, 0.0f, -mapHeight / 2}, {0,1,0}, {1, 1} },
         { { mapWidth / 2, 0.0f,  mapHeight / 2}, {0,1,0}, {1, 0} },
-        { {-mapWidth / 2, 0.0f,  mapHeight / 2}, {0,1,0}, {0, 0} } 
+        { {-mapWidth / 2, 0.0f,  mapHeight / 2}, {0,1,0}, {0, 0} }
     };
     std::vector<uint32_t> mapIndices = {
         0, 1, 2,
@@ -125,6 +122,17 @@ void Application::InitRenderer() {
 void Application::Update(float deltaTime) {
     m_Window.Update();
 
+    const float moveSpeed = 300.0f;
+    glm::vec3 pos = m_Camera3D.GetPosition();
+
+    pos.x += m_CameraMoveDir.x * moveSpeed * deltaTime;
+    pos.z += m_CameraMoveDir.y * moveSpeed * deltaTime;
+
+    pos.x = glm::clamp(pos.x, -1000.0f, 1000.0f);
+    pos.z = glm::clamp(pos.z, -1000.0f, 1500.0f);
+
+    m_Camera3D.SetPosition(pos);
+
     m_EventDispatcher.DispatchToLayers([&](Layer& layer) {
         layer.OnUpdate(deltaTime);
     });
@@ -137,30 +145,18 @@ void Application::SyncLayersWithState() {
 
     m_WalkLayer.SetEnabled(isWalkMode);
     m_MeasureLayer.SetEnabled(!isWalkMode);
-    m_ModeLayer.SetEnabled(true); 
-}
-
-void Application::PrepareFrame(int width, int height) {
-    glViewport(0, 0, width, height);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_ModeLayer.SetEnabled(true);
 }
 
 void Application::RenderWorld(int width, int height) {
     m_Renderer->BeginScene(m_Camera3D.GetViewProjection(width, height));
-    
-    static bool once = true;
-    if (once) {
-        glm::vec3 pos = m_Camera3D.GetPosition();
-        std::cout << "Camera pos: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
-        std::cout << "Camera pitch: " << m_Camera3D.GetPitch() << std::endl;
-        std::cout << "Camera yaw: " << m_Camera3D.GetYaw() << std::endl;
-        once = false;
-    }
     m_Renderer->DrawMesh(*m_MapMesh, glm::mat4(1.0));
 
-    if(m_WalkLayer.IsEnabled())
+    if (m_WalkLayer.IsEnabled())
         m_WalkLayer.OnRender(*m_Renderer);
+
+    if (m_MeasureLayer.IsEnabled())
+        m_MeasureLayer.OnRender(*m_Renderer);
 
     m_Renderer->EndScene();
 }
@@ -173,6 +169,7 @@ void Application::RenderUI(int width, int height) {
         -1.0f, 1.0f);
 
     m_Renderer->BeginScene(screenOrtho);
+
     m_Renderer->DrawText("Lazar Nagulov SV61/2022", { 10.0f, height - 100.0f }, 0.75f, { 0.0f, 0.8f, 1.0f, 0.5f });
 
     if (m_WalkLayer.IsEnabled()) {
@@ -182,11 +179,17 @@ void Application::RenderUI(int width, int height) {
             0.5f,
             { 0.0f, 0.0f, 0.0f, 1.0f });
     }
-    
-    m_EventDispatcher.DispatchToLayers([&](Layer& layer) {
-        if (&layer != &m_WalkLayer)
-            layer.OnRender(*m_Renderer);
-    });
+
+    if (m_MeasureLayer.IsEnabled()) {
+        m_Renderer->DrawText(
+            "Total distance: " + std::to_string(m_MeasureLayer.GetState().GetTotalDistance()),
+            { 10.0f, height - 50.0f },
+            0.5f,
+            { 0.0f, 0.0f, 0.0f, 1.0f });
+    }
+
+    m_CursorLayer.OnRender(*m_Renderer);
+    m_ModeLayer.OnRender(*m_Renderer);
 
     m_Renderer->EndScene();
 }
@@ -194,8 +197,7 @@ void Application::RenderUI(int width, int height) {
 void Application::Render() {
     int width = m_Window.GetWidth();
     int height = m_Window.GetHeight();
-    m_Renderer->SetDepthMode(Renderer::DepthMode::Enabled);
-    PrepareFrame(width, height);
+    m_Window.Clear(0.8f, 0.8f, 0.8f, 0.8f);
     RenderWorld(width, height);
     m_Renderer->SetDepthMode(Renderer::DepthMode::Disabled);
     RenderUI(width, height);
