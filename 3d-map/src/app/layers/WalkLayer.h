@@ -19,7 +19,6 @@ private:
     Input& m_Input;
     WalkState m_State;
     Camera2D& m_Camera;
-    Texture m_MapPinTexture;
 
     std::unique_ptr<Mesh> m_PlayerCube;
     glm::vec3 m_Player3DPosition = { 0.0f, 25.0f, 0.0f };

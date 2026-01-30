@@ -15,19 +15,23 @@ struct Vertex {
     glm::vec2 texCoord;
 };
 
+struct Material {
+    glm::vec3 kA;
+    glm::vec3 kD;
+    glm::vec3 kS;
+    float shine;
+};
+
 class Mesh {
 public:
-    Mesh(
-        const std::vector<Vertex>& vertices,
-        const std::vector<uint32_t>& indices
-    );
+    Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 
-    void SetTexture(std::shared_ptr<Texture> texture);
-    void SetColor(const glm::vec4& color);
+    inline void SetTexture(std::shared_ptr<Texture> texture) { m_Texture = texture;  }
+    inline void SetMaterial(const Material& material) { m_Material = material; }
 
-    bool HasTexture() const { return m_Texture != nullptr; }
-    const Texture& GetTexture() const { return *m_Texture; }
-    const glm::vec4& GetColor() const { return m_Color; }
+    inline bool HasTexture() const { return m_Texture != nullptr; }
+    inline const Texture& GetTexture() const { return *m_Texture; }
+    inline const Material& GetMaterial() const { return m_Material; }
 
     void Draw() const;
 
@@ -39,7 +43,7 @@ private:
     std::unique_ptr<IndexBuffer>  m_IBO;
 
     uint32_t m_IndexCount = 0;
+    Material m_Material;
 
     std::shared_ptr<Texture> m_Texture;
-    glm::vec4 m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 };

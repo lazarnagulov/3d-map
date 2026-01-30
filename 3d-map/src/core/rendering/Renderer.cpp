@@ -18,6 +18,31 @@ void Renderer::BeginScene(const glm::mat4& viewProjection) {
     }
 }
 
+void Renderer::BeginScene(const glm::mat4& viewProjection, const glm::vec3 cameraPos) {
+    m_ViewProjection = viewProjection;
+
+    if (m_QuadShader) {
+        m_QuadShader->Bind();
+        m_QuadShader->SetUniformMat4("uViewProjection", m_ViewProjection);
+    }
+
+    if (m_MeshShader) {
+        m_MeshShader->Bind();
+
+        m_MeshShader->SetUniformVec3("uViewPos", cameraPos);
+
+        m_MeshShader->SetUniformVec3("uLight.pos", { 0.0f, 500.0f, 500.0f });
+        m_MeshShader->SetUniformVec3("uLight.kA", { 0.3f, 0.3f, 0.3f });
+        m_MeshShader->SetUniformVec3("uLight.kD", { 0.8f, 0.8f, 0.8f });
+        m_MeshShader->SetUniformVec3("uLight.kS", { 0.0f, 0.0f, 0.0f });
+
+        m_MeshShader->SetUniformVec3("uMaterial.kA", glm::vec3(0.2f));
+        m_MeshShader->SetUniformVec3("uMaterial.kD", glm::vec3(1.0f));
+        m_MeshShader->SetUniformVec3("uMaterial.kS", glm::vec3(0.0f));
+        m_MeshShader->SetUniform1f("uMaterial.shine", 1.0f);
+    }
+}
+
 void Renderer::EndScene() { }
 
 void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) {
@@ -338,22 +363,29 @@ void Renderer::SetDepthMode(DepthMode mode) {
 
 void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4& transform) {
     m_MeshShader->Bind();
+
     m_MeshShader->SetUniformMat4("uModel", transform);
     m_MeshShader->SetUniformMat4("uViewProjection", m_ViewProjection);
 
+    const Material& mat = mesh.GetMaterial();
+
+    m_MeshShader->SetUniformVec3("uMaterial.kA", mat.kA);
+    m_MeshShader->SetUniformVec3("uMaterial.kD", mat.kD);
+    m_MeshShader->SetUniformVec3("uMaterial.kS", mat.kS);
+    m_MeshShader->SetUniform1f("uMaterial.shine", mat.shine);
 
     if (mesh.HasTexture()) {
         mesh.GetTexture().Bind(0);
-        m_MeshShader->SetUniform1i("uTexture", 0);
         m_MeshShader->SetUniform1i("uUseTexture", 1);
+        m_MeshShader->SetUniform1i("uTexture", 0);
     }
     else {
         m_MeshShader->SetUniform1i("uUseTexture", 0);
-        m_MeshShader->SetUniform4f("uColor", mesh.GetColor());
     }
 
     mesh.Draw();
 }
+
 
 std::unique_ptr<Mesh> Renderer::CreateCubeMesh(float size) {
     float s = size * 0.5f;
