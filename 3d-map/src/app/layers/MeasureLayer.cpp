@@ -14,21 +14,21 @@ namespace {
     constexpr float LINE_CYLINDER_HEIGHT = 1.0f;
     constexpr int   LINE_CYLINDER_SEGMENTS = 12;
 
-    constexpr Material PIN_CYLINDER_MAT{
+    const Material PIN_CYLINDER_MAT{
         { 0.05f, 0.05f, 0.05f }, 
         { 0.15f, 0.15f, 0.15f },
         { 0.6f,  0.6f,  0.6f  },
         32.0f
     };
 
-    constexpr Material PIN_SPHERE_GLOW_MAT{
+    const Material PIN_SPHERE_GLOW_MAT{
         { 0.4f,  0.0f,  0.0f },
         { 0.8f,  0.1f, 0.1f },
         { 1.0f,  0.3f,  0.3f  },
         64.0f
     };
 
-    constexpr Material LINE_CYLINDER_MAT{
+    const Material LINE_CYLINDER_MAT{
         { 0.05f, 0.03f, 0.0f },
         { 0.2f,  0.12f, 0.0f },
         { 0.1f,  0.1f,  0.1f },
@@ -99,8 +99,7 @@ glm::vec3 MeasureLayer::MouseToWorld(double x, double y) {
         m_WindowWidth,
         m_WindowHeight
     );
-
-    return IntersectRayWithPlane(ray, 0.0f);
+    return IntersectRayWithPlane(ray);
 }
 
 void MeasureLayer::DrawLine(Renderer& renderer, const glm::vec3& p0, const glm::vec3& p1) {
@@ -161,6 +160,7 @@ void MeasureLayer::InitializeMashes(Renderer& renderer) {
         m_LineCylinder->SetMaterial(LINE_CYLINDER_MAT);
     }
 }
+
 static glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY) {
     float denom = ray.direction.y;
 

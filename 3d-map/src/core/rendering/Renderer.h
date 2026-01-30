@@ -13,6 +13,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "../window/Camera3D.h"
+#include "models/Model.h"
 
 struct Light {
     glm::vec3 position;
@@ -60,6 +61,8 @@ public:
     std::unique_ptr<Mesh> CreateSphereMesh(float radius, int segments = 16);
 
     void DrawMesh(const Mesh& mesh, const glm::mat4& transform);
+    void DrawModel(const Model& model, const glm::mat4& transform);
+    
     inline void SetTextShader(std::shared_ptr<Shader>& shader) { m_TextShader = shader; }
     inline void SetMeshShader(std::shared_ptr<Shader>& shader) { m_MeshShader = shader; }
 private:

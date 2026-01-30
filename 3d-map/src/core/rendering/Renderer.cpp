@@ -31,12 +31,12 @@ void Renderer::BeginScene(const glm::mat4& viewProjection, const glm::vec3 camer
 
         m_MeshShader->SetUniformVec3("uViewPos", cameraPos);
         m_MeshShader->SetUniform1i("uLightCount", 1);
-
+        
         m_MeshShader->SetUniformVec3("uLights[0].pos", { 0.0f, 10000.0f, 0.0f });
         m_MeshShader->SetUniformVec3("uLights[0].kA", { 0.3f, 0.3f, 0.3f });
         m_MeshShader->SetUniformVec3("uLights[0].kD", { 0.6f, 0.6f, 0.6f });
         m_MeshShader->SetUniformVec3("uLights[0].kS", { 0.2f, 0.2f, 0.2f });
-
+        
         m_MeshShader->SetUniformVec3("uMaterial.kA", glm::vec3(0.2f));
         m_MeshShader->SetUniformVec3("uMaterial.kD", glm::vec3(1.0f));
         m_MeshShader->SetUniformVec3("uMaterial.kS", glm::vec3(0.0f));
@@ -425,6 +425,12 @@ void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4& transform) {
     mesh.Draw();
 }
 
+void Renderer::DrawModel(const Model& model, const glm::mat4& transform) {
+    m_MeshShader->Bind();
+    m_MeshShader->SetUniformMat4("uModel", transform);
+    m_MeshShader->SetUniformMat4("uViewProjection", m_ViewProjection);
+    model.Draw(*m_MeshShader);
+}
 
 std::unique_ptr<Mesh> Renderer::CreateCubeMesh(float size) {
     float s = size * 0.5f;
