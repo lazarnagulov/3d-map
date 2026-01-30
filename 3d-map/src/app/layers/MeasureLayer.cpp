@@ -14,9 +14,26 @@ namespace {
     constexpr float LINE_CYLINDER_HEIGHT = 1.0f;
     constexpr int   LINE_CYLINDER_SEGMENTS = 12;
 
-    constexpr glm::vec4 PIN_CYLINDER_COLOR{ 0.7f, 0.7f, 0.7f, 1.0f };
-    constexpr glm::vec4 PIN_SPHERE_COLOR{ 1.0f, 0.0f, 0.0f, 1.0f };
-    constexpr glm::vec4 LINE_CYLINDER_COLOR{ 1.0f, 0.5f, 0.0f, 1.0f };
+    constexpr Material PIN_CYLINDER_MAT{
+        { 0.05f, 0.05f, 0.05f }, 
+        { 0.15f, 0.15f, 0.15f },
+        { 0.6f,  0.6f,  0.6f  },
+        32.0f
+    };
+
+    constexpr Material PIN_SPHERE_GLOW_MAT{
+        { 0.4f,  0.0f,  0.0f },
+        { 0.8f,  0.1f, 0.1f },
+        { 1.0f,  0.3f,  0.3f  },
+        64.0f
+    };
+
+    constexpr Material LINE_CYLINDER_MAT{
+        { 0.05f, 0.03f, 0.0f },
+        { 0.2f,  0.12f, 0.0f },
+        { 0.1f,  0.1f,  0.1f },
+        8.0f
+    };
 }
 
 glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY = 0.0f);
@@ -42,6 +59,19 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
 void MeasureLayer::OnRender(Renderer& renderer) {
     InitializeMashes(renderer);
     const auto& points = m_State.GetPoints();
+
+    std::vector<PointLight> lights;
+
+    lights.push_back({
+        { 0.0f, 10000.0f, 0.0f },
+        glm::vec3(1.0f),
+        1.0f
+    });
+
+    for (auto& l : m_State.GetPinLights())
+        lights.push_back(l);
+
+    renderer.UploadLights(lights);
 
     for (const auto& point : points) {
         glm::mat4 pinTransform = glm::translate(glm::mat4(1.0f), point);
@@ -113,13 +143,13 @@ void MeasureLayer::InitializeMashes(Renderer& renderer) {
             PIN_CYLINDER_HEIGHT,
             PIN_CYLINDER_SEGMENTS
         );
-        m_PinCylinder->SetColor(PIN_CYLINDER_COLOR);
+        m_PinCylinder->SetMaterial(PIN_CYLINDER_MAT);
 
         m_PinSphere = renderer.CreateSphereMesh(
             PIN_SPHERE_RADIUS,
             PIN_SPHERE_SEGMENTS
         );
-        m_PinSphere->SetColor(PIN_SPHERE_COLOR);
+        m_PinSphere->SetMaterial(PIN_SPHERE_GLOW_MAT);
     }
 
     if (!m_LineCylinder) {
@@ -128,7 +158,7 @@ void MeasureLayer::InitializeMashes(Renderer& renderer) {
             LINE_CYLINDER_HEIGHT,
             LINE_CYLINDER_SEGMENTS
         );
-        m_LineCylinder->SetColor(LINE_CYLINDER_COLOR);
+        m_LineCylinder->SetMaterial(LINE_CYLINDER_MAT);
     }
 }
 static glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY) {

@@ -7,14 +7,6 @@ Mesh::Mesh(
     SetupMesh(vertices, indices);
 }
 
-void Mesh::SetTexture(std::shared_ptr<Texture> texture) {
-    m_Texture = texture;
-}
-
-void Mesh::SetColor(const glm::vec4& color) {
-    m_Color = color;
-}
-
 void Mesh::SetupMesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
     m_IndexCount = static_cast<uint32_t>(indices.size());
 

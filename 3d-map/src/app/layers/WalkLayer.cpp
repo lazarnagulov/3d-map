@@ -2,7 +2,7 @@
 #include "GLFW/glfw3.h"
 
 WalkLayer::WalkLayer(Input& input, Camera2D& camera) 
-    : m_Input(input), m_Camera(camera), m_MapPinTexture("./src/assets/textures/map-pin.png") {}
+    : m_Input(input), m_Camera(camera) {}
 
 void WalkLayer::OnUpdate(float dt) {
     uint8_t directions = 0;
@@ -25,7 +25,13 @@ void WalkLayer::OnRender(Renderer& renderer) {
 
     if (!m_PlayerCube) {
         m_PlayerCube = renderer.CreateCubeMesh(PLAYER_SIZE);
-        m_PlayerCube->SetColor({ 0.2f, 0.6f, 1.0f, 1.0f });
+        Material playerMat;
+        playerMat.kA = { 0.1f, 0.1f, 0.1f };
+        playerMat.kD = { 0.2f, 0.6f, 1.0f };
+        playerMat.kS = { 0.5f, 0.5f, 0.5f };
+        playerMat.shine = 64.0f;
+
+        m_PlayerCube->SetMaterial(playerMat);
     }
 
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos3D);

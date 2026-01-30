@@ -13,7 +13,8 @@ public:
 	void SetUniform1i(const std::string& name, int value);
 	void SetUniformMat4(const std::string& name, const glm::mat4& value);
 	void SetUniform4f(const std::string& name, const glm::vec4& value);
-
+	void SetUniformVec3(const std::string& name, const glm::vec3& value);
+	void SetUniform1f(const std::string& name, float value);
 private:
 	unsigned int CompileShader(unsigned int type, const std::string& source) const;
 	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) const;

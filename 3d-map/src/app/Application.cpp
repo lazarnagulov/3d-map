@@ -149,7 +149,7 @@ void Application::SyncLayersWithState() {
 }
 
 void Application::RenderWorld(int width, int height) {
-    m_Renderer->BeginScene(m_Camera3D.GetViewProjection(width, height));
+    m_Renderer->BeginScene(m_Camera3D.GetViewProjection(width, height), m_Camera3D.GetPosition());
     m_Renderer->DrawMesh(*m_MapMesh, glm::mat4(1.0));
 
     if (m_WalkLayer.IsEnabled())
