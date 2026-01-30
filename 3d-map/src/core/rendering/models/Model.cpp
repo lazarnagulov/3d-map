@@ -1,33 +1,69 @@
 #include "Model.h"
 #include <iostream>
 
-Model::Model(const std::string& modelPath, const std::string& texturePath) {
+Model::Model(const std::string& modelPath, const std::string& texturePath)
+{
     LoadTexture(texturePath);
+    LoadModel(modelPath);
+
+    if (m_Texture) {
+        for (auto& mesh : m_Meshes) {
+            mesh->SetTexture(m_Texture);
+        }
+    }
+}
+
+Model::Model(const std::string& modelPath)
+{
     LoadModel(modelPath);
 }
 
-void Model::Draw(Shader& shader) const {
+void Model::Draw(Shader& shader) const
+{
     shader.Bind();
 
-    if (m_Texture) {
-        m_Texture->Bind(0);
-        shader.SetUniform1i("uTexture", 0);
-    }
-
     for (const auto& mesh : m_Meshes) {
-        mesh->Draw();
-    }
+        const Material& mat = mesh->GetMaterial();
+        shader.SetUniformVec3("uMaterial.kA", mat.kA);
+        shader.SetUniformVec3("uMaterial.kD", mat.kD);
+        shader.SetUniformVec3("uMaterial.kS", mat.kS);
+        shader.SetUniform1f("uMaterial.shine", mat.shine);
 
-    if (m_Texture) {
-        m_Texture->Unbind();
+        if (mesh->HasTexture()) {
+            mesh->GetTexture().Bind(0);
+            shader.SetUniform1i("uTexture", 0);
+            shader.SetUniform1i("uHasTexture", 1);
+        }
+        else {
+            shader.SetUniform1i("uHasTexture", 0);
+        }
+
+        mesh->Draw();
+
+        if (mesh->HasTexture()) {
+            mesh->GetTexture().Unbind();
+        }
     }
 
     shader.Unbind();
 }
 
+void Model::SetTexture(std::shared_ptr<Texture> tex) {
+    m_Texture = tex;
+    for (auto& mesh : m_Meshes) {
+        mesh->SetTexture(m_Texture);
+    }
+}
+
+void Model::SetMaterial(const Material& material) {
+    for (auto& mesh : m_Meshes) {
+        mesh->SetMaterial(material);
+    }
+}
+
 void Model::LoadTexture(const std::string& path) {
     try {
-        m_Texture = std::make_unique<Texture>(path);
+        m_Texture = std::make_shared<Texture>(path);
     }
     catch (const std::exception& e) {
         std::cout << "ERROR::TEXTURE::Failed to load texture: " << path << std::endl;
@@ -96,5 +132,49 @@ std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
         }
     }
 
-    return std::make_unique<Mesh>(vertices, indices);
+    auto resultMesh = std::make_unique<Mesh>(vertices, indices);
+
+    if (mesh->mMaterialIndex >= 0) {
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+        Material mat;
+        aiColor3D color;
+
+        if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS) {
+            mat.kA = glm::vec3(color.r, color.g, color.b);
+        }
+        else {
+            mat.kA = glm::vec3(0.1f);
+        }
+
+        if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+            mat.kD = glm::vec3(color.r, color.g, color.b);
+        }
+        else {
+            mat.kD = glm::vec3(0.8f);
+        }
+
+        if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS) {
+            mat.kS = glm::vec3(color.r, color.g, color.b);
+        }
+        else {
+            mat.kS = glm::vec3(1.0f);
+        }
+
+        float shininess;
+        if (material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+            mat.shine = shininess;
+        }
+        else {
+            mat.shine = 32.0f;
+        }
+
+        resultMesh->SetMaterial(mat);
+    }
+    else {
+        Material defaultMat(glm::vec3(0.1f), glm::vec3(0.8f), glm::vec3(1.0f), 32.0f);
+        resultMesh->SetMaterial(defaultMat);
+    }
+
+    return resultMesh;
 }

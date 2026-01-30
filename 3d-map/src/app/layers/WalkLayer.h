@@ -19,8 +19,11 @@ private:
     Input& m_Input;
     WalkState m_State;
     Camera2D& m_Camera;
+    
+    float m_PlayerRotation = 0.0f;
+    float m_TargetRotation = 0.0f;
 
-    std::unique_ptr<Mesh> m_PlayerCube;
+    std::unique_ptr<Model> m_PlayerModel;
     glm::vec3 m_Player3DPosition = { 0.0f, 25.0f, 0.0f };
     const float PLAYER_SIZE = 50.0f;
     const float PLAYER_HEIGHT = 25.0f;

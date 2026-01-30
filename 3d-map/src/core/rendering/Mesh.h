@@ -20,6 +20,11 @@ struct Material {
     glm::vec3 kD;
     glm::vec3 kS;
     float shine;
+
+    Material() = default;
+
+    Material(glm::vec3 kA, glm::vec3 kD, glm::vec3 kS, float shine)
+        : kA(kA), kD(kD), kS(kS), shine(shine) {}
 };
 
 class Mesh {

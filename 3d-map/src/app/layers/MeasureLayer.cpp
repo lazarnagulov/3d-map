@@ -14,21 +14,21 @@ namespace {
     constexpr float LINE_CYLINDER_HEIGHT = 1.0f;
     constexpr int   LINE_CYLINDER_SEGMENTS = 12;
 
-    constexpr Material PIN_CYLINDER_MAT{
+    const Material PIN_CYLINDER_MAT{
         { 0.05f, 0.05f, 0.05f }, 
         { 0.15f, 0.15f, 0.15f },
         { 0.6f,  0.6f,  0.6f  },
         32.0f
     };
 
-    constexpr Material PIN_SPHERE_GLOW_MAT{
+    const Material PIN_SPHERE_GLOW_MAT{
         { 0.4f,  0.0f,  0.0f },
         { 0.8f,  0.1f, 0.1f },
         { 1.0f,  0.3f,  0.3f  },
         64.0f
     };
 
-    constexpr Material LINE_CYLINDER_MAT{
+    const Material LINE_CYLINDER_MAT{
         { 0.05f, 0.03f, 0.0f },
         { 0.2f,  0.12f, 0.0f },
         { 0.1f,  0.1f,  0.1f },
