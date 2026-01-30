@@ -13,12 +13,14 @@ void MeasureState::AddPoint(const glm::vec3& point) {
 void MeasureState::RemovePoint(size_t index) {
 	if (index < m_Points.size()) {
 		m_Points.erase(m_Points.begin() + index);
+		m_PinLights.erase(m_PinLights.begin() + index);
 		RecalculateDistance();
 	}
 }
 
 void MeasureState::Reset() {
 	m_Points.clear();
+	m_PinLights.clear();
 	m_TotalDistance = 0.0f;
 }
 
