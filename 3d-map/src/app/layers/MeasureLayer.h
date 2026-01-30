@@ -28,7 +28,7 @@ private:
 	int m_WindowHeight;
 	Input& m_Input;
 	MeasureState m_State;
-	Camera3D m_Camera;
+	Camera3D& m_Camera;
 
 	std::unique_ptr<Mesh> m_LineCylinder;
 	std::unique_ptr<Mesh> m_PinCylinder;

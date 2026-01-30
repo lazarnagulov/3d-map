@@ -4,7 +4,7 @@
 #include <glm/trigonometric.hpp>
 
 Camera3D::Camera3D(const glm::vec3& position /*= { 0 , 0, 0 }*/, float fov, float yaw /*= -90.0f*/, float pitch /*= 0.0f*/)
-    : m_Position(position), m_Zoom(1.0f), m_Yaw(yaw), m_Pitch(pitch), m_Fov(fov) {}
+    : m_Position(position), m_Yaw(yaw), m_Pitch(pitch), m_Fov(fov) {}
 
 void Camera3D::Move(const glm::vec3& delta) {
     m_Position += delta;
