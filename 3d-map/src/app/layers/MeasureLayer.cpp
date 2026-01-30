@@ -37,6 +37,7 @@ namespace {
 }
 
 glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY = 0.0f);
+inline bool IsOutside(const glm::vec3& position);
 
 MeasureLayer::MeasureLayer(Input& input, Camera3D& camera)
     : m_Input(input), m_TextPosition({ 0.0f, 0.0f }), m_Camera(camera) {}
@@ -46,6 +47,11 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
         return;
 
     glm::vec3 mouseWorld = MouseToWorld(x, y);
+    
+    if (IsOutside(mouseWorld)) {
+        return;
+    }
+    
     int index = m_State.FindPointNear(mouseWorld, 20.0f);
     
     if (index != -1) {
@@ -171,3 +177,8 @@ static glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY) {
     return ray.origin + ray.direction * t;
 }
 
+
+static inline bool IsOutside(const glm::vec3& position) {
+    return position.x < -1000.0f || position.x > 1000.0f ||
+        position.z < -1000.0f || position.z > 1000.0f;
+}
