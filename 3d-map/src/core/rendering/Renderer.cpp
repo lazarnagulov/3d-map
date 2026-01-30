@@ -30,11 +30,12 @@ void Renderer::BeginScene(const glm::mat4& viewProjection, const glm::vec3 camer
         m_MeshShader->Bind();
 
         m_MeshShader->SetUniformVec3("uViewPos", cameraPos);
+        m_MeshShader->SetUniform1i("uLightCount", 1);
 
-        m_MeshShader->SetUniformVec3("uLight.pos", { 0.0f, 500.0f, 500.0f });
-        m_MeshShader->SetUniformVec3("uLight.kA", { 0.3f, 0.3f, 0.3f });
-        m_MeshShader->SetUniformVec3("uLight.kD", { 0.8f, 0.8f, 0.8f });
-        m_MeshShader->SetUniformVec3("uLight.kS", { 0.0f, 0.0f, 0.0f });
+        m_MeshShader->SetUniformVec3("uLights[0].pos", { 0.0f, 10000.0f, 0.0f });
+        m_MeshShader->SetUniformVec3("uLights[0].kA", { 0.3f, 0.3f, 0.3f });
+        m_MeshShader->SetUniformVec3("uLights[0].kD", { 0.6f, 0.6f, 0.6f });
+        m_MeshShader->SetUniformVec3("uLights[0].kS", { 0.2f, 0.2f, 0.2f });
 
         m_MeshShader->SetUniformVec3("uMaterial.kA", glm::vec3(0.2f));
         m_MeshShader->SetUniformVec3("uMaterial.kD", glm::vec3(1.0f));
@@ -44,6 +45,44 @@ void Renderer::BeginScene(const glm::mat4& viewProjection, const glm::vec3 camer
 }
 
 void Renderer::EndScene() { }
+
+void Renderer::UploadLights(const std::vector<PointLight>& lights) {
+    m_MeshShader->Bind();
+
+    int count = 0;
+
+    for (const auto& l : lights)
+    {
+        if (count >= 16) break;
+
+        glm::vec3 color = l.color * l.intensity;
+
+        m_MeshShader->SetUniformVec3(
+            "uLights[" + std::to_string(count) + "].pos",
+            l.position
+        );
+
+        m_MeshShader->SetUniformVec3(
+            "uLights[" + std::to_string(count) + "].kA",
+            color * 0.15f
+        );
+
+        m_MeshShader->SetUniformVec3(
+            "uLights[" + std::to_string(count) + "].kD",
+            color
+        );
+
+        m_MeshShader->SetUniformVec3(
+            "uLights[" + std::to_string(count) + "].kS",
+            color
+        );
+
+        count++;
+    }
+
+    m_MeshShader->SetUniform1i("uLightCount", count);
+}
+
 
 void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) {
     if (!m_QuadInitialized)

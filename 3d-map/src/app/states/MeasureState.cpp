@@ -2,6 +2,11 @@
 
 void MeasureState::AddPoint(const glm::vec3& point) {
 	m_Points.push_back(point);
+	m_PinLights.push_back({
+		point + glm::vec3(0, 75, 0),
+		glm::vec3(1, 0, 0),
+		2.0f
+	});
 	RecalculateDistance();
 }
 

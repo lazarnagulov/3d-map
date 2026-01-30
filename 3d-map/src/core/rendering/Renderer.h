@@ -14,6 +14,17 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "../window/Camera3D.h"
 
+struct Light {
+    glm::vec3 position;
+    glm::vec3 kA, kD, kS;
+};
+
+struct PointLight {
+    glm::vec3 position;
+    glm::vec3 color;
+    float intensity;
+};
+
 class Renderer
 {
 public:
@@ -22,11 +33,6 @@ public:
         Disabled
     };
 
-    struct Light {
-        glm::vec3 position;
-        glm::vec3 kA, kD, kS;
-    };
-    
     Renderer(const std::shared_ptr<Shader>& shader);
 
     void SetDepthMode(DepthMode mode);
@@ -34,6 +40,7 @@ public:
     void BeginScene(const glm::mat4& viewProjection);
     void BeginScene(const glm::mat4& viewProjection, const glm::vec3 cameraPos);
     void EndScene();
+    void UploadLights(const std::vector<PointLight>& lights);
 
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
