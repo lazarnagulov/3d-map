@@ -26,6 +26,11 @@ struct PointLight {
     float intensity;
 };
 
+struct RenderSettings {
+    bool depthTest = true;
+    bool faceCulling = false;
+};
+
 class Renderer
 {
 public:
@@ -62,6 +67,7 @@ public:
 
     void DrawMesh(const Mesh& mesh, const glm::mat4& transform);
     void DrawModel(const Model& model, const glm::mat4& transform);
+    void ApplyRenderSettings(const RenderSettings& settings);
     
     inline void SetTextShader(std::shared_ptr<Shader>& shader) { m_TextShader = shader; }
     inline void SetMeshShader(std::shared_ptr<Shader>& shader) { m_MeshShader = shader; }

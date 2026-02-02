@@ -29,14 +29,15 @@ namespace {
     };
 
     const Material LINE_CYLINDER_MAT{
-        { 0.05f, 0.03f, 0.0f },
-        { 0.2f,  0.12f, 0.0f },
+        { 0.6f,  0.3f,  0.0f },
+        { 1.0f,  0.5f,  0.0f },
         { 0.1f,  0.1f,  0.1f },
         8.0f
     };
 }
 
 glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY = 0.0f);
+inline bool IsOutside(const glm::vec3& position);
 
 MeasureLayer::MeasureLayer(Input& input, Camera3D& camera)
     : m_Input(input), m_TextPosition({ 0.0f, 0.0f }), m_Camera(camera) {}
@@ -46,6 +47,11 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
         return;
 
     glm::vec3 mouseWorld = MouseToWorld(x, y);
+    
+    if (IsOutside(mouseWorld)) {
+        return;
+    }
+    
     int index = m_State.FindPointNear(mouseWorld, 20.0f);
     
     if (index != -1) {
@@ -59,20 +65,7 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
 void MeasureLayer::OnRender(Renderer& renderer) {
     InitializeMashes(renderer);
     const auto& points = m_State.GetPoints();
-
-    std::vector<PointLight> lights;
-
-    lights.push_back({
-        { 0.0f, 10000.0f, 0.0f },
-        glm::vec3(1.0f),
-        1.0f
-    });
-
-    for (auto& l : m_State.GetPinLights())
-        lights.push_back(l);
-
-    renderer.UploadLights(lights);
-
+ 
     for (const auto& point : points) {
         glm::mat4 pinTransform = glm::translate(glm::mat4(1.0f), point);
         renderer.DrawMesh(*m_PinCylinder, pinTransform);
@@ -171,3 +164,8 @@ static glm::vec3 IntersectRayWithPlane(const Ray& ray, float planeY) {
     return ray.origin + ray.direction * t;
 }
 
+
+static inline bool IsOutside(const glm::vec3& position) {
+    return position.x < -1000.0f || position.x > 1000.0f ||
+        position.z < -1000.0f || position.z > 1000.0f;
+}

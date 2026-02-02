@@ -35,7 +35,13 @@ void Application::InitWindowHandlers() {
             m_State.SwitchMode();
             return true;
         }
-
+        if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
+            m_RenderSettings.depthTest = !m_RenderSettings.depthTest;
+        }
+        if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+            m_RenderSettings.faceCulling = !m_RenderSettings.faceCulling;
+        }
+        
         float value = (action == GLFW_PRESS || action == GLFW_REPEAT) ? 1.0f : 0.0f;
 
         if (key == GLFW_KEY_UP)    m_CameraMoveDir.y = -value;
@@ -151,6 +157,20 @@ void Application::SyncLayersWithState() {
 void Application::RenderWorld(int width, int height) {
     m_Renderer->BeginScene(m_Camera3D.GetViewProjection(width, height), m_Camera3D.GetPosition());
 
+    std::vector<PointLight> sceneLights;
+
+    sceneLights.push_back({
+        { 0.0f, 1.0f, 0.0f },  
+        glm::vec3(1.0f, 1.0f, 1.0f),      
+        1.0f                  
+    });
+
+    if (m_MeasureLayer.IsEnabled()) {
+        const auto& pinLights = m_MeasureLayer.GetState().GetPinLights();
+        sceneLights.insert(sceneLights.end(), pinLights.begin(), pinLights.end());
+    }
+
+    m_Renderer->UploadLights(sceneLights);
     m_Renderer->DrawMesh(*m_MapMesh, glm::mat4(1.0));
 
     if (m_WalkLayer.IsEnabled())
@@ -159,10 +179,8 @@ void Application::RenderWorld(int width, int height) {
     if (m_MeasureLayer.IsEnabled())
         m_MeasureLayer.OnRender(*m_Renderer);
 
-
     m_Renderer->EndScene();
 }
-
 
 void Application::RenderUI(int width, int height) {
     glm::mat4 screenOrtho = glm::ortho(
@@ -200,6 +218,7 @@ void Application::Render() {
     int width = m_Window.GetWidth();
     int height = m_Window.GetHeight();
     m_Window.Clear(0.8f, 0.8f, 0.8f, 0.8f);
+    m_Renderer->ApplyRenderSettings(m_RenderSettings);
     RenderWorld(width, height);
     m_Renderer->SetDepthMode(Renderer::DepthMode::Disabled);
     RenderUI(width, height);
