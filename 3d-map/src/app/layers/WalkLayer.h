@@ -3,31 +3,28 @@
 #include "../../core/layers/Layer.h"
 #include "../../core/input/Input.h"
 #include "../../core/rendering/Texture.h"
-#include "../../core/rendering/Renderer2D.h"
-#include "../../core/window/Camera.h"
+#include "../../core/rendering/Renderer.h"
+#include "../../core/window/Camera2D.h"
 #include "../states/WalkState.h"
 
 class WalkLayer : public Layer {
 public:
-    WalkLayer(Input& input, Camera& camera);
+    WalkLayer(Input& input, Camera2D& camera);
     void OnUpdate(float dt) override; 
-    void OnRender(Renderer2D& renderer) override;
+    void OnRender(Renderer& renderer) override;
     void OnKey(int key, int action) override;
-    void OnAttach() override;
 
     inline WalkState& GetState() { return m_State;  }
-
-private:
-    void UpdateCameraZoom(float dt);
 private:
     Input& m_Input;
     WalkState m_State;
-    Camera& m_Camera;
-    Texture m_MapPinTexture;
+    Camera2D& m_Camera;
+    
+    float m_PlayerRotation = 0.0f;
+    float m_TargetRotation = 0.0f;
 
-
-    float m_ZoomSpeed = 0.5f;
-    float m_MinZoom = 1.0f;
-    float m_MaxZoom = 2.5f; 
-    static constexpr float INITIAL_ZOOM = 1.5f; 
+    std::unique_ptr<Model> m_PlayerModel;
+    glm::vec3 m_Player3DPosition = { 0.0f, 25.0f, 0.0f };
+    const float PLAYER_SIZE = 50.0f;
+    const float PLAYER_HEIGHT = 25.0f;
 };

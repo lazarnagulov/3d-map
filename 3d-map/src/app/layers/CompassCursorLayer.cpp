@@ -6,7 +6,7 @@ CompassCursorLayer::CompassCursorLayer(Input& input, const glm::vec2& target)
       m_Input(input),
       m_Target(target) {}
 
-void CompassCursorLayer::OnRender(Renderer2D& renderer) {
+void CompassCursorLayer::OnRender(Renderer& renderer) {
     float mouseX = m_Input.GetMouseX();
     float mouseY = m_Target.y - m_Input.GetMouseY();
 

@@ -9,17 +9,44 @@
 #include "buffers/IndexBuffer.h"
 #include "buffers/VertexBufferLayout.h"
 #include "Texture.h"
+#include "Mesh.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "../window/Camera3D.h"
+#include "models/Model.h"
 
-class Renderer2D
+struct Light {
+    glm::vec3 position;
+    glm::vec3 kA, kD, kS;
+};
+
+struct PointLight {
+    glm::vec3 position;
+    glm::vec3 color;
+    float intensity;
+};
+
+struct RenderSettings {
+    bool depthTest = true;
+    bool faceCulling = false;
+};
+
+class Renderer
 {
 public:
-    Renderer2D(const std::shared_ptr<Shader>& shader);
+    enum class DepthMode {
+        Enabled,
+        Disabled
+    };
 
+    Renderer(const std::shared_ptr<Shader>& shader);
+
+    void SetDepthMode(DepthMode mode);
 
     void BeginScene(const glm::mat4& viewProjection);
+    void BeginScene(const glm::mat4& viewProjection, const glm::vec3 cameraPos);
     void EndScene();
+    void UploadLights(const std::vector<PointLight>& lights);
 
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
@@ -33,9 +60,17 @@ public:
 
     void DrawText(const std::string& txt, glm::vec2 pos, float scale, const glm::vec4& color = glm::vec4(1.0f));
     void LoadFont(const std::string& fontPath, unsigned int fontSize = 48);
+    
+    std::unique_ptr<Mesh> CreateCubeMesh(float size);
+    std::unique_ptr<Mesh> CreateCylinderMesh(float radius, float height, int segments = 16);
+    std::unique_ptr<Mesh> CreateSphereMesh(float radius, int segments = 16);
 
+    void DrawMesh(const Mesh& mesh, const glm::mat4& transform);
+    void DrawModel(const Model& model, const glm::mat4& transform);
+    void ApplyRenderSettings(const RenderSettings& settings);
+    
     inline void SetTextShader(std::shared_ptr<Shader>& shader) { m_TextShader = shader; }
-
+    inline void SetMeshShader(std::shared_ptr<Shader>& shader) { m_MeshShader = shader; }
 private:
     void InitQuad();
     void InitLine();
@@ -49,10 +84,13 @@ private:
     };
 
 private:
+    Light m_Light;
+    
     std::shared_ptr<Shader> m_QuadShader;
     std::shared_ptr<Shader> m_ColorShader;
     std::shared_ptr<Shader> m_CircleShader;
     std::shared_ptr<Shader> m_TextShader;
+    std::shared_ptr<Shader> m_MeshShader;
 
     std::unique_ptr<VertexArray> m_QuadVA;
     std::unique_ptr<VertexBuffer> m_QuadVB;

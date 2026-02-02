@@ -1,4 +1,4 @@
-#include "Renderer2D.h"
+#include "Renderer.h"
 #include <GL/glew.h>
 #include <iostream>
 
@@ -6,10 +6,10 @@
 #include <freetype/freetype.h>
 #define FT_FREETYPE_H
 
-Renderer2D::Renderer2D(const std::shared_ptr<Shader>& shader)
+Renderer::Renderer(const std::shared_ptr<Shader>& shader)
     : m_QuadShader(shader) { }
 
-void Renderer2D::BeginScene(const glm::mat4& viewProjection) {
+void Renderer::BeginScene(const glm::mat4& viewProjection) {
     m_ViewProjection = viewProjection;
 
     if (m_QuadShader) {
@@ -18,9 +18,52 @@ void Renderer2D::BeginScene(const glm::mat4& viewProjection) {
     }
 }
 
-void Renderer2D::EndScene() { }
+void Renderer::BeginScene(const glm::mat4& viewProjection, const glm::vec3 cameraPos) {
+    m_ViewProjection = viewProjection;
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) {
+    if (m_QuadShader) {
+        m_QuadShader->Bind();
+        m_QuadShader->SetUniformMat4("uViewProjection", m_ViewProjection);
+    }
+
+    if (m_MeshShader) {
+        m_MeshShader->Bind();
+
+        m_MeshShader->SetUniformVec3("uViewPos", cameraPos);
+                
+        m_MeshShader->SetUniformVec3("uMaterial.kA", glm::vec3(0.2f));
+        m_MeshShader->SetUniformVec3("uMaterial.kD", glm::vec3(1.0f));
+        m_MeshShader->SetUniformVec3("uMaterial.kS", glm::vec3(0.0f));
+        m_MeshShader->SetUniform1f("uMaterial.shine", 1.0f);
+    }
+}
+
+void Renderer::EndScene() { }
+
+void Renderer::UploadLights(const std::vector<PointLight>& lights) {
+    m_MeshShader->Bind();
+    int count = 0;
+
+    for (const auto& l : lights) {
+        if (count >= 16) break;
+
+        glm::vec3 diffuseColor = l.color * l.intensity;
+        glm::vec3 ambientColor = l.color * (l.intensity * 0.2f);
+
+        std::string base = "uLights[" + std::to_string(count) + "].";
+
+        m_MeshShader->SetUniformVec3(base + "pos", l.position);
+        m_MeshShader->SetUniformVec3(base + "kA", ambientColor);
+        m_MeshShader->SetUniformVec3(base + "kD", diffuseColor);
+        m_MeshShader->SetUniformVec3(base + "kS", diffuseColor);
+
+        count++;
+    }
+    m_MeshShader->SetUniform1i("uLightCount", count);
+}
+
+
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) {
     if (!m_QuadInitialized)
         InitQuad();
 
@@ -43,11 +86,11 @@ void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, floa
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) {
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) {
     DrawQuad(position, size, 0.0f, color);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture, const glm::vec4& tint) {
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture, const glm::vec4& tint) {
     if (!m_QuadInitialized)
         InitQuad();
 
@@ -68,11 +111,11 @@ void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, cons
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture) {
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture) {
     DrawQuad(position, size, texture, glm::vec4(1.0f));
 }
 
-void Renderer2D::DrawLine(const glm::vec2& p0, const glm::vec2& p1, float thickness, const glm::vec4& color) {
+void Renderer::DrawLine(const glm::vec2& p0, const glm::vec2& p1, float thickness, const glm::vec4& color) {
     if (!m_LineInitialized)
         InitLine();
 
@@ -100,7 +143,7 @@ void Renderer2D::DrawLine(const glm::vec2& p0, const glm::vec2& p1, float thickn
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer2D::DrawCircle(const glm::vec2& center, float radius, const glm::vec4& color, bool filled) {
+void Renderer::DrawCircle(const glm::vec2& center, float radius, const glm::vec4& color, bool filled) {
     if (filled) {
         if (!m_CircleInitialized)
             InitCircle();
@@ -124,7 +167,7 @@ void Renderer2D::DrawCircle(const glm::vec2& center, float radius, const glm::ve
     }
 }
 
-void Renderer2D::DrawCircleOutline(const glm::vec2& center, float radius, float thickness, const glm::vec4& color) {
+void Renderer::DrawCircleOutline(const glm::vec2& center, float radius, float thickness, const glm::vec4& color) {
     const int segments = 64;
 
     for (int i = 0; i < segments; ++i) {
@@ -138,7 +181,7 @@ void Renderer2D::DrawCircleOutline(const glm::vec2& center, float radius, float 
     }
 }
 
-void Renderer2D::InitQuad() {
+void Renderer::InitQuad() {
     float vertices[] = {
         -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f,  1.0f, 0.0f,
@@ -162,7 +205,7 @@ void Renderer2D::InitQuad() {
 }
 
 
-void Renderer2D::InitLine() {
+void Renderer::InitLine() {
     float vertices[] = {
         -0.5f, -0.5f,
          0.5f, -0.5f,
@@ -183,7 +226,7 @@ void Renderer2D::InitLine() {
     m_LineInitialized = true;
 }
 
-void Renderer2D::InitCircle() {
+void Renderer::InitCircle() {
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
 
@@ -215,7 +258,7 @@ void Renderer2D::InitCircle() {
     m_CircleInitialized = true;
 }
 
-void Renderer2D::DrawText(const std::string& txt, glm::vec2 pos, float scale, const glm::vec4& color) {
+void Renderer::DrawText(const std::string& txt, glm::vec2 pos, float scale, const glm::vec4& color) {
     if (!m_FontLoaded) {
         std::cerr << "ERROR: Font not loaded. Call LoadFont() first." << std::endl;
         return;
@@ -265,7 +308,7 @@ void Renderer2D::DrawText(const std::string& txt, glm::vec2 pos, float scale, co
     }
 }
 
-void Renderer2D::LoadFont(const std::string& fontPath, unsigned int fontSize) {
+void Renderer::LoadFont(const std::string& fontPath, unsigned int fontSize) {
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
         std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
@@ -327,4 +370,169 @@ void Renderer2D::LoadFont(const std::string& fontPath, unsigned int fontSize) {
     m_TextVA->AddBuffer(*m_TextVB, layout);
 
     m_FontLoaded = true;
+}
+
+void Renderer::SetDepthMode(DepthMode mode) {
+    if (mode == DepthMode::Enabled)
+        glEnable(GL_DEPTH_TEST);
+    else
+        glDisable(GL_DEPTH_TEST);
+}
+
+void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4& transform) {
+    m_MeshShader->Bind();
+
+    m_MeshShader->SetUniformMat4("uModel", transform);
+    m_MeshShader->SetUniformMat4("uViewProjection", m_ViewProjection);
+
+    const Material& mat = mesh.GetMaterial();
+
+    m_MeshShader->SetUniformVec3("uMaterial.kA", mat.kA);
+    m_MeshShader->SetUniformVec3("uMaterial.kD", mat.kD);
+    m_MeshShader->SetUniformVec3("uMaterial.kS", mat.kS);
+    m_MeshShader->SetUniform1f("uMaterial.shine", mat.shine);
+
+    if (mesh.HasTexture()) {
+        mesh.GetTexture().Bind(0);
+        m_MeshShader->SetUniform1i("uUseTexture", 1);
+        m_MeshShader->SetUniform1i("uTexture", 0);
+    }
+    else {
+        m_MeshShader->SetUniform1i("uUseTexture", 0);
+    }
+
+    mesh.Draw();
+}
+
+void Renderer::DrawModel(const Model& model, const glm::mat4& transform) {
+    m_MeshShader->Bind();
+    m_MeshShader->SetUniformMat4("uModel", transform);
+    m_MeshShader->SetUniformMat4("uViewProjection", m_ViewProjection);
+    model.Draw(*m_MeshShader);
+}
+
+std::unique_ptr<Mesh> Renderer::CreateCubeMesh(float size) {
+    float s = size * 0.5f;
+    std::vector<Vertex> vertices = {
+        {{-s,-s, s}, {0,0,1}, {0,0}}, {{ s,-s, s}, {0,0,1}, {1,0}},
+        {{ s, s, s}, {0,0,1}, {1,1}}, {{-s, s, s}, {0,0,1}, {0,1}},
+        {{ s,-s,-s}, {0,0,-1}, {0,0}}, {{-s,-s,-s}, {0,0,-1}, {1,0}},
+        {{-s, s,-s}, {0,0,-1}, {1,1}}, {{ s, s,-s}, {0,0,-1}, {0,1}},
+        {{-s, s, s}, {0,1,0}, {0,0}}, {{ s, s, s}, {0,1,0}, {1,0}},
+        {{ s, s,-s}, {0,1,0}, {1,1}}, {{-s, s,-s}, {0,1,0}, {0,1}},
+        {{-s,-s,-s}, {0,-1,0}, {0,0}}, {{ s,-s,-s}, {0,-1,0}, {1,0}},
+        {{ s,-s, s}, {0,-1,0}, {1,1}}, {{-s,-s, s}, {0,-1,0}, {0,1}},
+        {{ s,-s, s}, {1,0,0}, {0,0}}, {{ s,-s,-s}, {1,0,0}, {1,0}},
+        {{ s, s,-s}, {1,0,0}, {1,1}}, {{ s, s, s}, {1,0,0}, {0,1}},
+        {{-s,-s,-s}, {-1,0,0}, {0,0}}, {{-s,-s, s}, {-1,0,0}, {1,0}},
+        {{-s, s, s}, {-1,0,0}, {1,1}}, {{-s, s,-s}, {-1,0,0}, {0,1}}
+    };
+
+    std::vector<uint32_t> indices;
+    for (int i = 0; i < 6; i++) {
+        unsigned int base = i * 4;
+        indices.insert(indices.end(), {
+            base + 0, base + 1, base + 2,
+            base + 2, base + 3, base + 0
+            });
+    }
+
+    return std::make_unique<Mesh>(vertices, indices);
+}
+
+std::unique_ptr<Mesh> Renderer::CreateSphereMesh(float radius, int segments) {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    for (int lat = 0; lat <= segments; lat++) {
+        float theta = lat * 3.14159265359f / segments;
+        float sinTheta = sin(theta);
+        float cosTheta = cos(theta);
+
+        for (int lon = 0; lon <= segments; lon++) {
+            float phi = lon * 2.0f * 3.14159265359f / segments;
+            float sinPhi = sin(phi);
+            float cosPhi = cos(phi);
+
+            glm::vec3 pos(
+                radius * sinTheta * cosPhi,
+                radius * cosTheta,
+                radius * sinTheta * sinPhi
+            );
+            glm::vec3 normal = glm::normalize(pos);
+            glm::vec2 uv((float)lon / segments, (float)lat / segments);
+
+            vertices.push_back({ pos, normal, uv });
+        }
+    }
+
+    for (int lat = 0; lat < segments; lat++) {
+        for (int lon = 0; lon < segments; lon++) {
+            unsigned int first = lat * (segments + 1) + lon;
+            unsigned int second = first + segments + 1;
+
+            indices.insert(indices.end(), {
+                first, second, first + 1,
+                second, second + 1, first + 1
+            });
+        }
+    }
+
+    return std::make_unique<Mesh>(vertices, indices);
+}
+
+std::unique_ptr<Mesh> Renderer::CreateCylinderMesh(float radius, float height, int segments) {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    vertices.push_back({ {0, 0, 0}, {0, -1, 0}, {0.5f, 0.5f} });
+    vertices.push_back({ {0, height, 0}, {0, 1, 0}, {0.5f, 0.5f} });
+
+    for (int i = 0; i <= segments; i++) {
+        float angle = (float)i / segments * 2.0f * 3.14159265359f;
+        float x = cos(angle) * radius;
+        float z = sin(angle) * radius;
+        glm::vec3 normal = glm::normalize(glm::vec3(x, 0, z));
+
+        vertices.push_back({ {x, 0, z}, normal, {(float)i / segments, 0} });
+        vertices.push_back({ {x, height, z}, normal, {(float)i / segments, 1} });
+    }
+
+    for (int i = 0; i < segments; i++) {
+        indices.insert(indices.end(), { 0, static_cast<unsigned int>(2 + i * 2 + 2), static_cast<unsigned int>(2 + i * 2) });
+    }
+
+    for (int i = 0; i < segments; i++) {
+        indices.insert(indices.end(), { 1, static_cast<unsigned int>(3 + i * 2), static_cast<unsigned int>(3 + i) * 2 + 2 });
+    }
+
+    for (int i = 0; i < segments; i++) {
+        unsigned int b1 = 2 + i * 2;
+        unsigned int t1 = 3 + i * 2;
+        unsigned int b2 = 2 + i * 2 + 2;
+        unsigned int t2 = 3 + i * 2 + 2;
+
+        indices.insert(indices.end(), { b1, b2, t1, t1, b2, t2 });
+    }
+
+    return std::make_unique<Mesh>(vertices, indices);
+}
+
+void Renderer::ApplyRenderSettings(const RenderSettings& settings) {
+    if (settings.depthTest) {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+    }
+    else {
+        glDisable(GL_DEPTH_TEST);
+    }
+
+    if (settings.faceCulling) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
+    }
+    else {
+        glDisable(GL_CULL_FACE);
+    }
 }

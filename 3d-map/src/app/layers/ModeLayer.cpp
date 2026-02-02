@@ -8,7 +8,7 @@ ModeLayer::ModeLayer(AppState& state)
 	  m_Position({ 150.0f, 150.0f }),
 	  m_Size({ 200.0f, 200.0f }) {}
 
-void ModeLayer::OnRender(Renderer2D& renderer) {
+void ModeLayer::OnRender(Renderer& renderer) {
 	renderer.DrawQuad(
 		m_Position,
 		m_Size,

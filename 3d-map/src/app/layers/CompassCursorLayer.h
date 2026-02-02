@@ -7,9 +7,7 @@ class CompassCursorLayer : public Layer {
 public:
     CompassCursorLayer(Input& input, const glm::vec2& target);
 
-    void OnRender(Renderer2D& renderer) override;
-    void OnUpdate(float dt) override {}
-
+    void OnRender(Renderer& renderer) override;
 private:
     Input& m_Input;
     Texture m_CompassBase;

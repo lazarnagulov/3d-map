@@ -15,11 +15,12 @@ void EventDispatcher::OnKey(int key, int action) {
 }
 
 void EventDispatcher::OnMouseMove(double x, double y) {
-    if (m_AppMouseMoveHandler && m_AppMouseMoveHandler(x, y))
+    
+    if (m_AppMouseMoveHandler && m_AppMouseMoveHandler(x, m_WindowHeight - y))
         return;
     
     DispatchToLayers([&](Layer& layer) {
-        layer.OnMouseMove(x, y);
+        layer.OnMouseMove(x, m_WindowHeight - y);
     });
 }
 

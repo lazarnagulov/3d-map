@@ -8,7 +8,8 @@
 #include "systems/LayerManager.h"
 #include "systems/EventDispatcher.h"
 
-#include "../core/window/Camera.h"
+#include "../core/window/Camera2D.h"
+#include "../core/window/Camera3D.h"
 #include "../core/window/Window.h"
 #include "../core/layers/LayerStack.h"
 
@@ -24,20 +25,22 @@ public:
 	inline const Window& GetWindow() const { return m_Window; }
 	inline Window& GetWindow() { return m_Window; }
 private:
+	void InitWindowHandlers();
 	void InitRenderer();
 	void SyncLayersWithState();
-	void PrepareFrame(int width, int height);
 	void RenderWorld(int width, int height);
-	void RenderBackground();
 	void RenderUI(int width, int height);
 private:
 	Input m_Input;
 	LayerStack m_LayerStack;
 	LayerManager m_LayerManager;
 	EventDispatcher m_EventDispatcher;
+	RenderSettings m_RenderSettings;
 	Window m_Window;
 	
-	Camera m_Camera;
+	Camera2D m_Camera2D;
+	Camera3D m_Camera3D;
+	glm::vec2 m_CameraMoveDir;
 
 	ModeLayer& m_ModeLayer;
 	WalkLayer& m_WalkLayer;
@@ -46,9 +49,11 @@ private:
 
 	AppState m_State;
 
-	std::unique_ptr<Renderer2D> m_Renderer;
+	std::unique_ptr<Renderer> m_Renderer;
 	std::shared_ptr<Shader> m_QuadShader;
 	std::shared_ptr<Shader> m_TextShader;
+	std::shared_ptr<Shader> m_MeshShader;
 
-	std::unique_ptr<Texture> m_BackgroundTexture;
+	std::shared_ptr<Texture> m_BackgroundTexture;
+	std::unique_ptr<Mesh> m_MapMesh;
 };
