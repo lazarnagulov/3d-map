@@ -35,7 +35,13 @@ void Application::InitWindowHandlers() {
             m_State.SwitchMode();
             return true;
         }
-
+        if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
+            m_RenderSettings.depthTest = !m_RenderSettings.depthTest;
+        }
+        if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+            m_RenderSettings.faceCulling = !m_RenderSettings.faceCulling;
+        }
+        
         float value = (action == GLFW_PRESS || action == GLFW_REPEAT) ? 1.0f : 0.0f;
 
         if (key == GLFW_KEY_UP)    m_CameraMoveDir.y = -value;
@@ -212,6 +218,7 @@ void Application::Render() {
     int width = m_Window.GetWidth();
     int height = m_Window.GetHeight();
     m_Window.Clear(0.8f, 0.8f, 0.8f, 0.8f);
+    m_Renderer->ApplyRenderSettings(m_RenderSettings);
     RenderWorld(width, height);
     m_Renderer->SetDepthMode(Renderer::DepthMode::Disabled);
     RenderUI(width, height);

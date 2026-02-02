@@ -517,3 +517,22 @@ std::unique_ptr<Mesh> Renderer::CreateCylinderMesh(float radius, float height, i
 
     return std::make_unique<Mesh>(vertices, indices);
 }
+
+void Renderer::ApplyRenderSettings(const RenderSettings& settings) {
+    if (settings.depthTest) {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+    }
+    else {
+        glDisable(GL_DEPTH_TEST);
+    }
+
+    if (settings.faceCulling) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
+    }
+    else {
+        glDisable(GL_CULL_FACE);
+    }
+}

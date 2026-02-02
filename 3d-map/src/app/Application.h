@@ -35,6 +35,7 @@ private:
 	LayerStack m_LayerStack;
 	LayerManager m_LayerManager;
 	EventDispatcher m_EventDispatcher;
+	RenderSettings m_RenderSettings;
 	Window m_Window;
 	
 	Camera2D m_Camera2D;
