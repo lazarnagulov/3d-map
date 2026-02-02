@@ -30,13 +30,7 @@ void Renderer::BeginScene(const glm::mat4& viewProjection, const glm::vec3 camer
         m_MeshShader->Bind();
 
         m_MeshShader->SetUniformVec3("uViewPos", cameraPos);
-        m_MeshShader->SetUniform1i("uLightCount", 1);
-        
-        m_MeshShader->SetUniformVec3("uLights[0].pos", { 0.0f, 10000.0f, 0.0f });
-        m_MeshShader->SetUniformVec3("uLights[0].kA", { 0.3f, 0.3f, 0.3f });
-        m_MeshShader->SetUniformVec3("uLights[0].kD", { 0.6f, 0.6f, 0.6f });
-        m_MeshShader->SetUniformVec3("uLights[0].kS", { 0.2f, 0.2f, 0.2f });
-        
+                
         m_MeshShader->SetUniformVec3("uMaterial.kA", glm::vec3(0.2f));
         m_MeshShader->SetUniformVec3("uMaterial.kD", glm::vec3(1.0f));
         m_MeshShader->SetUniformVec3("uMaterial.kS", glm::vec3(0.0f));
@@ -48,38 +42,23 @@ void Renderer::EndScene() { }
 
 void Renderer::UploadLights(const std::vector<PointLight>& lights) {
     m_MeshShader->Bind();
-
     int count = 0;
 
-    for (const auto& l : lights)
-    {
+    for (const auto& l : lights) {
         if (count >= 16) break;
 
-        glm::vec3 color = l.color * l.intensity;
+        glm::vec3 diffuseColor = l.color * l.intensity;
+        glm::vec3 ambientColor = l.color * (l.intensity * 0.2f);
 
-        m_MeshShader->SetUniformVec3(
-            "uLights[" + std::to_string(count) + "].pos",
-            l.position
-        );
+        std::string base = "uLights[" + std::to_string(count) + "].";
 
-        m_MeshShader->SetUniformVec3(
-            "uLights[" + std::to_string(count) + "].kA",
-            color * 0.15f
-        );
-
-        m_MeshShader->SetUniformVec3(
-            "uLights[" + std::to_string(count) + "].kD",
-            color
-        );
-
-        m_MeshShader->SetUniformVec3(
-            "uLights[" + std::to_string(count) + "].kS",
-            color
-        );
+        m_MeshShader->SetUniformVec3(base + "pos", l.position);
+        m_MeshShader->SetUniformVec3(base + "kA", ambientColor);
+        m_MeshShader->SetUniformVec3(base + "kD", diffuseColor);
+        m_MeshShader->SetUniformVec3(base + "kS", diffuseColor);
 
         count++;
     }
-
     m_MeshShader->SetUniform1i("uLightCount", count);
 }
 

@@ -29,8 +29,8 @@ namespace {
     };
 
     const Material LINE_CYLINDER_MAT{
-        { 0.05f, 0.03f, 0.0f },
-        { 0.2f,  0.12f, 0.0f },
+        { 0.6f,  0.3f,  0.0f },
+        { 1.0f,  0.5f,  0.0f },
         { 0.1f,  0.1f,  0.1f },
         8.0f
     };
@@ -65,20 +65,7 @@ void MeasureLayer::OnMouseButton(int button, int action, double x, double y) {
 void MeasureLayer::OnRender(Renderer& renderer) {
     InitializeMashes(renderer);
     const auto& points = m_State.GetPoints();
-
-    std::vector<PointLight> lights;
-
-    lights.push_back({
-        { 0.0f, 10000.0f, 0.0f },
-        glm::vec3(1.0f),
-        1.0f
-    });
-
-    for (auto& l : m_State.GetPinLights())
-        lights.push_back(l);
-
-    renderer.UploadLights(lights);
-
+ 
     for (const auto& point : points) {
         glm::mat4 pinTransform = glm::translate(glm::mat4(1.0f), point);
         renderer.DrawMesh(*m_PinCylinder, pinTransform);
