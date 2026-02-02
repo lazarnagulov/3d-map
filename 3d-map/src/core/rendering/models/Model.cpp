@@ -1,8 +1,7 @@
 #include "Model.h"
 #include <iostream>
 
-Model::Model(const std::string& modelPath, const std::string& texturePath)
-{
+Model::Model(const std::string& modelPath, const std::string& texturePath) {
     LoadTexture(texturePath);
     LoadModel(modelPath);
 
@@ -13,13 +12,11 @@ Model::Model(const std::string& modelPath, const std::string& texturePath)
     }
 }
 
-Model::Model(const std::string& modelPath)
-{
+Model::Model(const std::string& modelPath) {
     LoadModel(modelPath);
 }
 
-void Model::Draw(Shader& shader) const
-{
+void Model::Draw(Shader& shader) const {
     shader.Bind();
 
     for (const auto& mesh : m_Meshes) {
