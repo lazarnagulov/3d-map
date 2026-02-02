@@ -4,9 +4,9 @@
 
 
 <div align="center"> 
-    <h1 align="center">2D Map</h1> 
+    <h1 align="center">3D Map</h1> 
     <p align="center"> <br /> 
-        <a href="https://github.com/lazarnagulov/2d-map/issues/new?labels=bug">Report Bug</a> 
+        <a href="https://github.com/lazarnagulov/3d-map/issues/new?labels=bug">Report Bug</a> 
     </p> 
 </div> 
 
@@ -57,7 +57,7 @@ The rendering pipeline utilizes modern OpenGL (3.3+ core profile) with programma
 
 The application features two interactive modes:
 
-1. **Walking Mode** - A humanoid character model navigates across the map plane using WASD controls. The character rotates to face the direction of movement. The overhead camera follows the action from a fixed angle looking down at the map (slightly angled for better perspective). Movement distance is continuously tracked and displayed as a 2D overlay in the corner of the screen.
+1. **Walking Mode** - A humanoid character model navigates across the map plane using WASD controls. The character rotates to face the direction of movement. An overhead camera with a fixed downward angle (slightly angled for better perspective) provides the view. Movement distance is continuously tracked and displayed as a 2D overlay in the corner of the screen.
 
 2. **Measurement Mode** - The camera elevates to a higher y-position for a better overview. Users can place measurement points anywhere on the map using mouse clicks. Each point is visualized as a 3D pin (narrow cylinder with a red sphere on top) that emits red light. Consecutive points are connected by lines drawn on the map surface, with the total measured distance displayed as a 2D overlay.
 
@@ -73,6 +73,7 @@ This project is implemented entirely in C++ and uses a modern OpenGL programmabl
 * [![OpenGL][OpenGL]][OpenGL-url]
 * [![GLFW][GLFW]][GLFW-url]
 * [![GLEW][GLEW]][GLEW-url]
+* [![Assimp][Assimp]][Assimp-url]
 * [![FreeType][FreeType]][FreeType-url]
 * [![GLM][GLM]][GLM-url]
 
@@ -150,7 +151,7 @@ Cursor is visually represented as a **compass**, with the red needle pointing to
 
 The project follows a layered architecture with clear separation of concerns:
 ```
-2d-map/
+3d-map/
 ├── src/
 │   ├── core/              # Engine-level components
 │   │   ├── rendering/     # Renderer, shaders, textures, buffers, models, meshes
@@ -218,6 +219,8 @@ To use your own humanoid character model:
    - Has appropriate materials/textures
 3. **Update model loading code** if using a different file format
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Development
 
 ### Adding New Layers
@@ -228,7 +231,7 @@ To create a custom layer:
 class MyLayer : public Layer {
 public:
     void OnUpdate(float dt) override { /* ... */ }
-    void OnRender(Renderer2D& renderer) override { /* ... */ }
+    void OnRender(Renderer& renderer) override { /* ... */ }
     void OnKey(int key, int action) override { /* ... */ }
 };
 
@@ -269,8 +272,8 @@ The `Renderer` class supports:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-[last-commit-shield]: https://img.shields.io/github/last-commit/lazarnagulov/2d-map?branch=main&style=for-the-badge
-[last-commit-url]: https://github.com/lazarnagulov/2d-map/commits/main
+[last-commit-shield]: https://img.shields.io/github/last-commit/lazarnagulov/3d-map?branch=main&style=for-the-badge
+[last-commit-url]: https://github.com/lazarnagulov/3d-map/commits/main
 [C++]: https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=cplusplus&logoColor=white  
 [C++-url]: https://isocpp.org/  
 [OpenGL]: https://img.shields.io/badge/OpenGL-5586A4?style=for-the-badge&logo=opengl&logoColor=white  
@@ -283,3 +286,5 @@ The `Renderer` class supports:
 [FreeType-url]: https://freetype.org/  
 [GLM]: https://img.shields.io/badge/GLM-3A3A3A?style=for-the-badge&logo=glm&logoColor=white  
 [GLM-url]: https://github.com/g-truc/glm  
+[Assimp]: https://img.shields.io/badge/Assimp-0078D4?style=for-the-badge&logo=3d&logoColor=white
+[Assimp-url]: https://www.assimp.org/
